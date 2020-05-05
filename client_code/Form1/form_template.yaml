@@ -4,9 +4,28 @@ container:
   properties: {html: '@theme:standard-page.html'}
 components:
 - type: ColumnPanel
-  properties: {}
+  properties: {col_widths: '{}'}
   name: content_panel
   layout_properties: {slot: default}
+  components:
+  - type: ColumnPanel
+    properties: {col_widths: '{}'}
+    name: column_panel_1
+    layout_properties: {grid_position: 'EAZSBG,CNJGXB'}
+    components:
+    - type: TextBox
+      properties: {}
+      name: email
+      layout_properties: {grid_position: 'GJNZSR,TSIHQY'}
+      event_bindings: {pressed_enter: email_pressed_enter}
+    - type: Link
+      properties: {role: null, url: '', align: left, tooltip: '', border: '', foreground: '',
+        visible: true, text: Send2me, font_size: null, wrap_on: mobile, font: '',
+        col_spacing: medium, spacing_above: small, icon_align: left, col_widths: '',
+        spacing_below: small, italic: false, background: '', bold: false, underline: false,
+        icon: ''}
+      name: link
+      layout_properties: {grid_position: 'LFNNVD,KZRPCG'}
 - type: FlowPanel
   properties: {}
   name: navbar_links

@@ -10,12 +10,20 @@ import anvil.server
 
 @anvil.server.http_endpoint("/send/:email")
 def send_url(email):
-  #ip = anvil.server.request.remote_address
+  ip = anvil.server.request.remote_address
   url=anvil.server.request.origin
+  body=anvil.server.request.body_json
+  headers=anvil.server.request.headers
+  
+  print('url',url)
+  print('ip',ip)
+  print('body',body)
+  print('headers', headers)
+  
   anvil.email.send(from_name="send2me", 
                  to=email, 
                  subject="Link",
-                 text=url)
+                 text=ip)
 
 
 

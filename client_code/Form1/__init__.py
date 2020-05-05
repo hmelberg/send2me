@@ -17,7 +17,7 @@ class Form1(Form1Template):
   def email_pressed_enter(self, **event_args):
     path = 'https://scented-perfect-raccoon.anvil.app/_/api/'
     email=self.email.text
-    self.link.url = path+f'_/api/send/{email}'
+    self.link.url = path+f'send/{email}'
 
 
 

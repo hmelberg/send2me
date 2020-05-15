@@ -18,6 +18,23 @@ class Form1(Form1Template):
     path = 'https://scented-perfect-raccoon.anvil.app/_/api/'
     email=self.email.text
     self.link.url = path+f'send/{email}'
+    self.link.visible=True
+
+  def link_click(self, **event_args):
+    """This method is called when the link is clicked"""
+    pass
+
+  def create_link_click(self, **event_args):
+    path = 'https://scented-perfect-raccoon.anvil.app/_/api/'
+    email=self.email.text
+    self.link.url = path+f'send/{email}'
+    self.link.visible=True
+
+
+
+
+
+
 
 
 

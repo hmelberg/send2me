@@ -13,15 +13,19 @@ components:
     name: spacer_1
     layout_properties: {grid_position: 'BVPLON,FFERKW'}
   - type: Label
-    properties: {role: null, align: center, tooltip: '', border: '', foreground: '',
+    properties: {role: text, align: center, tooltip: '', border: '', foreground: '',
       visible: true, text: 'A one-click solution to e-mail yourself the link of a
         page.  One click, no delay, no typing.', font_size: null, font: '', spacing_above: small,
       icon_align: left, spacing_below: small, italic: false, background: '', bold: false,
       underline: false, icon: ''}
     name: label_2
     layout_properties: {grid_position: 'BVPLON,ILVJEH MSROSJ,FCKDOH'}
+  - type: Spacer
+    properties: {height: 16}
+    name: spacer_3
+    layout_properties: {grid_position: 'BVPLON,ILVJEH QABXJO,CFDIVA'}
   - type: Label
-    properties: {role: null, align: center, tooltip: '', border: '', foreground: '',
+    properties: {role: subheading, align: center, tooltip: '', border: '', foreground: '',
       visible: true, text: 'How to install it?
 
         ', font_size: null, font: '', spacing_above: small, icon_align: left, spacing_below: small,
@@ -30,7 +34,7 @@ components:
     layout_properties: {grid_position: 'BVPLON,ILVJEH SEFWHF,HUJSAA'}
   - type: Label
     properties: {role: null, align: left, tooltip: '', border: '', foreground: '',
-      visible: true, text: 1. Write your email in the box below, font_size: null,
+      visible: true, text: 1. The e-mail the links should be sent to, font_size: null,
       font: '', spacing_above: small, icon_align: left, spacing_below: small, italic: false,
       background: '', bold: false, underline: false, icon: ''}
     name: label_4
@@ -45,8 +49,8 @@ components:
     event_bindings: {pressed_enter: email_pressed_enter}
   - type: Label
     properties: {role: null, align: left, tooltip: '', border: '', foreground: '',
-      visible: true, text: 2. Click to generate the your unique link, font_size: null,
-      font: '', spacing_above: small, icon_align: left, spacing_below: small, italic: false,
+      visible: true, text: 2. Click to create your unique link, font_size: null, font: '',
+      spacing_above: small, icon_align: left, spacing_below: small, italic: false,
       background: '', bold: false, underline: false, icon: ''}
     name: label_7
     layout_properties: {grid_position: 'BVPLON,ILVJEH WOMCRD,VSYUOY'}
@@ -104,9 +108,9 @@ components:
   name: navbar_links
   layout_properties: {slot: nav-right}
 - type: Label
-  properties: {role: null, align: left, tooltip: '', border: '', foreground: '', visible: true,
-    text: Send2me.link, font_size: null, font: '', spacing_above: small, icon_align: left,
-    spacing_below: small, italic: false, background: '', bold: false, underline: false,
-    icon: ''}
+  properties: {role: headline, align: center, tooltip: '', border: '', foreground: '',
+    visible: true, text: Send2me.link, font_size: null, font: '', spacing_above: small,
+    icon_align: left, spacing_below: small, italic: false, background: '', bold: false,
+    underline: false, icon: 'fa:paper-plane-o'}
   name: label_1
   layout_properties: {slot: title}

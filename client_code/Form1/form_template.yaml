@@ -109,7 +109,7 @@ components:
   layout_properties: {slot: nav-right}
 - type: Label
   properties: {role: headline, align: center, tooltip: '', border: '', foreground: '',
-    visible: true, text: Send2me.link, font_size: null, font: '', spacing_above: small,
+    visible: true, text: send2me, font_size: null, font: '', spacing_above: small,
     icon_align: left, spacing_below: small, italic: false, background: '', bold: false,
     underline: false, icon: 'fa:paper-plane-o'}
   name: label_1

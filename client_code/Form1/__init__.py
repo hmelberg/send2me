@@ -15,22 +15,21 @@ class Form1(Form1Template):
     # Any code you write here will run when the form opens.
 
   def email_pressed_enter(self, **event_args):
-    path = 'https://scented-perfect-raccoon.anvil.app/_/api/'
+    path = 'https://scented-perfect-raccoon.anvil.app/_/api'
     email=self.email.text
-    self.link.url = path+f'send/{email}'
+    self.link.url = f"javascript:fetch('{path}/send/{email}');"
+    self.appear.visible=False
     self.link.visible=True
 
-  def link_click(self, **event_args):
-    """This method is called when the link is clicked"""
-    pass
 
   def create_link_click(self, **event_args):
-    path = 'https://scented-perfect-raccoon.anvil.app/_/api/'
+    path = 'https://scented-perfect-raccoon.anvil.app/_/api'
     email=self.email.text
-    self.link.url = path+f'send/{email}'
+    self.link.url = f"javascript:fetch('{path}/send/{email}');"
+    self.appear.visible=False
     self.link.visible=True
 
-
+#https://stackoverflow.com/questions/463368/javascript-close-alert-box/45152906#45152906
 
 
 

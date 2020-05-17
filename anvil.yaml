@@ -13,7 +13,8 @@ package_name: send2me
 allow_embedding: false
 name: send2me
 runtime_options: {version: 2, client_version: '3', server_version: python3-sandbox}
-metadata: {}
+metadata: {description: A one-click solution to send yourself the link to the web page you are browsing,
+  logo_img: 'asset:iconfinder_telegram_3246742.png', title: send2me}
 startup_form: Form1
 db_schema:
 - name: Users

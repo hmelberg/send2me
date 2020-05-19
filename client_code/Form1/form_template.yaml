@@ -14,8 +14,8 @@ components:
     layout_properties: {grid_position: 'BVPLON,FFERKW'}
   - type: Label
     properties: {role: text, align: center, tooltip: '', border: '', foreground: '',
-      visible: true, text: 'A one-click solution to e-mail yourself the link of a
-        page.  One click, no delay, no typing.', font_size: null, font: '', spacing_above: small,
+      visible: true, text: 'A one click solution to mail the link of a page to yourself
+        as you browse.  No delay, no typing.', font_size: null, font: '', spacing_above: small,
       icon_align: left, spacing_below: small, italic: false, background: '', bold: false,
       underline: false, icon: ''}
     name: label_2

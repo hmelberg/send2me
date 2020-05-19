@@ -31,6 +31,9 @@ class Form1(Form1Template):
 
 #https://stackoverflow.com/questions/463368/javascript-close-alert-box/45152906#45152906
 
+#https://www.iconfinder.com/icons/3246742/paperplane_software_telegram_icon
+#https://stackoverflow.com/questions/3024745/cross-browser-bookmark-add-to-favorites-javascript
+#https://sandbox.self.li/bookmarklet-to-extension/
 
 
 

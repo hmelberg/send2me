@@ -30,5 +30,5 @@ db_schema:
       type: string
       admin_ui: {order: 0, width: 200}
   access: {python_name: users, app_id: UYSXQGT7J2OPYSQR, server: full, client: none,
-    table_id: 53406}
+    table_mapping_name: null, table_mapping_id: null, table_id: 53406}
 renamed: true

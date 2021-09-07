@@ -23,7 +23,7 @@ class Form1(Form1Template):
 
 
   def create_link_click(self, **event_args):
-    path = 'https://scented-perfect-raccoon.anvil.app/_/api'
+    path = 'https://send2me.anvil.app/_/api'
     email=self.email.text
     self.link.url = f"javascript:fetch('{path}/send/{email}');"
     self.appear.visible=False

@@ -98,14 +98,21 @@ components:
         background: '', bold: false, underline: false, icon: ''}
       name: label_6
       layout_properties: {grid_position: 'ELUHGX,MUAGXD'}
+      event_bindings: {hide: Single}
+    - type: RichText
+      properties: {role: null, align: left, tooltip: '', enable_slots: true, border: '',
+        foreground: '', visible: true, font_size: null, content: 'Note: People who
+          generated the link previously, need to do so again because the domain name
+          of the service has changed. Moreover, there may soon be further updates
+          to this service to better capture the full text of all kinds of URLs.',
+        font: '', spacing_above: small, spacing_below: small, data: null, background: '',
+        format: markdown}
+      name: rich_text_1
+      layout_properties: {grid_position: 'FIPLQC,PZLXJR'}
   - type: Spacer
     properties: {height: 32}
     name: spacer_2
     layout_properties: {grid_position: 'BVPLON,XBOHCZ'}
-  - type: Spacer
-    properties: {height: 32}
-    name: spacer_4
-    layout_properties: {grid_position: 'IMJRGH,ATTGKF'}
 - type: FlowPanel
   properties: {}
   name: navbar_links

@@ -14,11 +14,13 @@ def send_url(email):
   url=anvil.server.request.origin
   body=anvil.server.request.body_json
   headers=anvil.server.request.headers
+  path=anvil.server.request.path
   #email='hans.melberg@gmail.com'
   print('url',url)
   #print('ip',ip)
   print('body',body)
   print('headers', headers)
+  print('path', path)
   url=headers['referer']
   
   anvil.email.send(from_name="send2me", 

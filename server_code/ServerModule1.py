@@ -15,15 +15,15 @@ def send_url(email):
   body=anvil.server.request.body_json
   headers=anvil.server.request.headers
   path=anvil.server.request.path
-  print('context', anvil.server.context)
-  print('param', anvil.server.request.form_params)
-  print('query', anvil.server.request.query_params)
+  #print('context', anvil.server.context)
+  #print('param', anvil.server.request.form_params)
+  #print('query', anvil.server.request.query_params)
   #email='hans.melberg@gmail.com'
-  print('url',url)
+  #print('url',url)
   #print('ip',ip)
-  print('body',body)
-  print('headers', headers)
-  print('path', path)
+  #print('body',body)
+  #print('headers', headers)
+  #print('path', path)
   url=headers['referer']
   
   anvil.email.send(from_name="send2me", 

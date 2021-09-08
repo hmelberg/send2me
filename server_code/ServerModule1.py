@@ -15,6 +15,9 @@ def send_url(email):
   body=anvil.server.request.body_json
   headers=anvil.server.request.headers
   path=anvil.server.request.path
+  print('context', anvil.server.context)
+  print('param', anvil.server.request.form_params)
+  print('query', anvil.server.request.query_params)
   #email='hans.melberg@gmail.com'
   print('url',url)
   #print('ip',ip)

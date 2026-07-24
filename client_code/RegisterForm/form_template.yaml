@@ -63,7 +63,7 @@ components:
     type: Link
   - layout_properties: {}
     name: label_step3
-    properties: {align: center, foreground: 'theme:Gray 600', role: text, text: '3. Drag the link above to your bookmarks bar - done! (On your phone: follow the instructions in the email.)', visible: false}
+    properties: {align: center, foreground: 'theme:Gray 600', role: text, text: '3. Drag the link above to your bookmarks bar - done! (Want a real icon on it, or setting up your phone? See the email.)', visible: false}
     type: Label
   layout_properties: {slot: default}
   name: content_panel

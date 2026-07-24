@@ -37,6 +37,8 @@ db_schema:
     title: Users
 metadata: {description: 'Send lenken til siden du leser til din egen e-post - ett klikk.', logo_img: 'asset:iconfinder_telegram_3246742.png', title: send2me}
 name: send2me
+native_deps:
+  head_html: '<link rel="icon" type="image/png" href="_/theme/iconfinder_telegram_3246742.png">'
 package_name: send2me
 renamed: true
 runtime_options:

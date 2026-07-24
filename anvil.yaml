@@ -1,5 +1,26 @@
 allow_embedding: false
 db_schema:
+  subscribers:
+    client: none
+    columns:
+    - admin_ui: {width: 200}
+      name: email
+      type: string
+    - admin_ui: {width: 200}
+      name: token
+      type: string
+    - admin_ui: {width: 150}
+      name: created
+      type: datetime
+    - admin_ui: {width: 100}
+      name: reg_date
+      type: date
+    - admin_ui: {width: 100}
+      name: reg_count
+      type: number
+    indexes: []
+    server: full
+    title: Subscribers
   users:
     client: none
     columns:
@@ -14,7 +35,7 @@ db_schema:
     indexes: []
     server: full
     title: Users
-metadata: {description: A one-click solution to send yourself the link to the web page you are browsing, logo_img: 'asset:iconfinder_telegram_3246742.png', title: send2me}
+metadata: {description: 'Send lenken til siden du leser til din egen e-post - ett klikk.', logo_img: 'asset:iconfinder_telegram_3246742.png', title: send2me}
 name: send2me
 package_name: send2me
 renamed: true
@@ -30,7 +51,4 @@ services:
 - client_config: {}
   server_config: {auto_create_missing_columns: false}
   source: /runtime/services/tables.yml
-- client_config: {allow_signup: true, confirm_email: true, enable_automatically: true, use_email: true}
-  server_config: {user_table: users}
-  source: /runtime/services/anvil/users.yml
-startup_form: Form1
+startup_form: RegisterForm

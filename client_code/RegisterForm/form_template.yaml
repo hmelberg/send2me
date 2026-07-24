@@ -1,0 +1,75 @@
+components:
+- components:
+  - layout_properties: {}
+    name: spacer_top
+    properties: {height: 24}
+    type: Spacer
+  - layout_properties: {}
+    name: label_title
+    properties: {align: center, role: headline, text: send2me}
+    type: Label
+  - layout_properties: {}
+    name: label_intro
+    properties: {align: center, role: text, text: 'Send lenken til siden du leser til din egen e-post - ett klikk, ingen skriving.'}
+    type: Label
+  - layout_properties: {}
+    name: label_step1
+    properties: {role: subheading, text: '1. Registrer e-posten din'}
+    type: Label
+  - event_bindings: {pressed_enter: text_box_email_pressed_enter}
+    layout_properties: {}
+    name: text_box_email
+    properties: {placeholder: 'din@epost.no', type: email}
+    type: TextBox
+  - event_bindings: {click: button_register_click}
+    layout_properties: {}
+    name: button_register
+    properties: {role: primary-color, text: Registrer}
+    type: Button
+  - layout_properties: {}
+    name: label_reg_status
+    properties: {foreground: 'theme:Gray 600', text: ''}
+    type: Label
+  - layout_properties: {}
+    name: label_step2
+    properties: {role: subheading, text: '2. Lim inn nøkkelen fra e-posten'}
+    type: Label
+  - event_bindings: {pressed_enter: text_box_token_pressed_enter}
+    layout_properties: {}
+    name: text_box_token
+    properties: {placeholder: 'nøkkelen du fikk tilsendt'}
+    type: TextBox
+  - event_bindings: {click: button_make_click}
+    layout_properties: {}
+    name: button_make
+    properties: {role: primary-color, text: Lag bokmerke-lenke}
+    type: Button
+  - layout_properties: {}
+    name: label_make_status
+    properties: {foreground: 'theme:Gray 600', text: ''}
+    type: Label
+  - components: []
+    layout_properties: {}
+    name: link_bookmarklet
+    properties: {align: center, bold: true, text: "✉️ send2me", tooltip: Dra meg til bokmerkelinjen, url: '', visible: false}
+    type: Link
+  - layout_properties: {}
+    name: label_step3
+    properties: {role: subheading, text: '3. Dra lenken over til bokmerkelinjen - ferdig! (På mobil: se oppskriften i e-posten.)', visible: false}
+    type: Label
+  - layout_properties: {}
+    name: spacer_bottom
+    properties: {height: 32}
+    type: Spacer
+  layout_properties: {slot: default}
+  name: content_panel
+  properties: {}
+  type: LinearPanel
+- layout_properties: {slot: title}
+  name: label_apptitle
+  properties: {align: left, role: headline, text: send2me}
+  type: Label
+container:
+  properties: {html: '@theme:standard-page.html'}
+  type: HtmlTemplate
+is_package: true

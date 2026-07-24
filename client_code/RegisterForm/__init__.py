@@ -9,10 +9,10 @@ class RegisterForm(RegisterFormTemplate):
         self.init_components(**properties)
 
     def button_register_click(self, **event_args):
-        self.label_reg_status.text = "Sender ..."
+        self.label_reg_status.text = "Sending ..."
         result = anvil.server.call('register_email', self.text_box_email.text or "")
         if result["ok"]:
-            self.label_reg_status.text = "Sjekk innboksen din!"
+            self.label_reg_status.text = "Check your inbox!"
         else:
             self.label_reg_status.text = result["error"]
 

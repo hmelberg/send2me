@@ -775,3 +775,38 @@ textarea.anvil-component[disabled] {
 https://stackoverflow.com/questions/30533055/calculating-shadow-values-for-all-material-design-elevations
 */
 
+
+/* ===== send2me: centered hero card + draggable bookmark pill ===== */
+
+.anvil-role-hero-card {
+  display: block;
+  max-width: 27rem;
+  margin: 7vh auto 3rem;
+  padding: 2.2rem 2.4rem 2.6rem;
+  border-radius: 14px;
+  background-color: white;
+  box-shadow: 0 12px 32px rgba(33, 150, 243, 0.12), 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+
+@media (max-width: 500px) {
+  .anvil-role-hero-card {
+    margin: 1rem 0.8rem 2rem;
+    padding: 1.6rem 1.3rem 2rem;
+  }
+}
+
+.anvil-role-bookmark {
+  display: inline-block;
+  padding: 0.55em 1.3em;
+  border: 2px dashed %color:Primary 500%;
+  border-radius: 999px;
+  background-color: #E3F2FD;
+  color: %color:Primary 700% !important;
+  font-weight: 600;
+  cursor: grab;
+  text-decoration: none !important;
+}
+
+.anvil-role-bookmark:hover {
+  background-color: #D0E8FC;
+}

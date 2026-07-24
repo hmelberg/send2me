@@ -177,3 +177,7 @@ roles:
   name: dense
 - components: [Link]
   name: selected
+- components: [LinearPanel]
+  name: hero-card
+- components: [Link]
+  name: bookmark

@@ -1,69 +1,73 @@
 components:
 - components:
   - layout_properties: {}
-    name: spacer_top
-    properties: {height: 24}
-    type: Spacer
+    name: image_logo
+    properties: {align: center, display_mode: shrink_to_fit, height: 64, source: '_/theme/iconfinder_telegram_3246742.png'}
+    type: Image
   - layout_properties: {}
     name: label_title
     properties: {align: center, role: headline, text: send2me}
     type: Label
   - layout_properties: {}
     name: label_intro
-    properties: {align: center, role: text, text: 'Send lenken til siden du leser til din egen e-post - ett klikk, ingen skriving.'}
+    properties: {align: center, foreground: 'theme:Gray 600', role: text, text: 'Email yourself the page you''re reading. One click, no typing.'}
     type: Label
   - layout_properties: {}
+    name: spacer_intro
+    properties: {height: 12}
+    type: Spacer
+  - layout_properties: {}
     name: label_step1
-    properties: {role: subheading, text: '1. Registrer e-posten din'}
+    properties: {role: subheading, text: '1. Register your email'}
     type: Label
   - event_bindings: {pressed_enter: text_box_email_pressed_enter}
     layout_properties: {}
     name: text_box_email
-    properties: {placeholder: 'din@epost.no', type: email}
+    properties: {placeholder: 'you@example.com', type: email}
     type: TextBox
   - event_bindings: {click: button_register_click}
     layout_properties: {}
     name: button_register
-    properties: {role: primary-color, text: Registrer}
+    properties: {align: full, role: primary-color, text: Register}
     type: Button
   - layout_properties: {}
     name: label_reg_status
-    properties: {foreground: 'theme:Gray 600', text: ''}
+    properties: {align: center, foreground: 'theme:Gray 600', text: ''}
     type: Label
   - layout_properties: {}
+    name: spacer_mid
+    properties: {height: 12}
+    type: Spacer
+  - layout_properties: {}
     name: label_step2
-    properties: {role: subheading, text: '2. Lim inn nøkkelen fra e-posten'}
+    properties: {role: subheading, text: '2. Paste the key from the email'}
     type: Label
   - event_bindings: {pressed_enter: text_box_token_pressed_enter}
     layout_properties: {}
     name: text_box_token
-    properties: {placeholder: 'nøkkelen du fikk tilsendt'}
+    properties: {placeholder: 'the key you received'}
     type: TextBox
   - event_bindings: {click: button_make_click}
     layout_properties: {}
     name: button_make
-    properties: {role: primary-color, text: Lag bokmerke-lenke}
+    properties: {align: full, role: primary-color, text: Create bookmark link}
     type: Button
   - layout_properties: {}
     name: label_make_status
-    properties: {foreground: 'theme:Gray 600', text: ''}
+    properties: {align: center, foreground: 'theme:Gray 600', text: ''}
     type: Label
   - components: []
     layout_properties: {}
     name: link_bookmarklet
-    properties: {align: center, bold: true, text: "✉️ send2me", tooltip: Dra meg til bokmerkelinjen, url: '', visible: false}
+    properties: {align: center, role: bookmark, text: "✈️ send2me", tooltip: Drag me to your bookmarks bar, url: '', visible: false}
     type: Link
   - layout_properties: {}
     name: label_step3
-    properties: {role: subheading, text: '3. Dra lenken over til bokmerkelinjen - ferdig! (På mobil: se oppskriften i e-posten.)', visible: false}
+    properties: {align: center, foreground: 'theme:Gray 600', role: text, text: '3. Drag the link above to your bookmarks bar - done! (On your phone: follow the instructions in the email.)', visible: false}
     type: Label
-  - layout_properties: {}
-    name: spacer_bottom
-    properties: {height: 32}
-    type: Spacer
   layout_properties: {slot: default}
   name: content_panel
-  properties: {}
+  properties: {role: hero-card}
   type: LinearPanel
 - layout_properties: {slot: title}
   name: label_apptitle

@@ -64,12 +64,12 @@ class TestTexts(unittest.TestCase):
 
     def test_sent_page(self):
         html = logic.sent_page_html()
-        self.assertIn("Sendt", html)
+        self.assertIn("Sent", html)
         self.assertIn("window.close", html)
         self.assertIn("history.back", html)
 
     def test_error_page(self):
-        self.assertIn("Ukjent", logic.error_page_html("Ukjent nøkkel"))
+        self.assertIn("Unknown", logic.error_page_html("Unknown key"))
 
 
 if __name__ == "__main__":

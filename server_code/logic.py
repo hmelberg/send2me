@@ -47,19 +47,20 @@ def bookmarklet_js(token, api_base=API_BASE):
 
 def registration_email_text(token, js):
     return (
-        "Hei!\n\n"
-        "Her er din personlige send2me-nøkkel:\n\n"
+        "Hi!\n\n"
+        "Here is your personal send2me key:\n\n"
         "    %s\n\n"
-        "Slik kommer du i gang (PC/Mac):\n"
-        "1. Gå til https://send2me.app/\n"
-        "2. Lim inn nøkkelen i steg 2 og trykk «Lag bokmerke-lenke».\n"
-        "3. Dra lenken som dukker opp, til bokmerkelinjen.\n\n"
-        "På mobil:\n"
-        "1. Lagre en hvilken som helst side som bokmerke, og gi det navnet send2me.\n"
-        "2. Rediger bokmerket og erstatt adressen med hele koden under:\n\n"
+        "Getting started (computer):\n"
+        "1. Go to https://send2me.app/\n"
+        "2. Paste the key in step 2 and click \"Create bookmark link\".\n"
+        "3. Drag the link that appears to your bookmarks bar.\n\n"
+        "On your phone:\n"
+        "1. Save any page as a bookmark and name it send2me.\n"
+        "2. Edit the bookmark and replace its address with the entire code below:\n\n"
         "%s\n\n"
-        "Deretter: stå på en side, trykk på bokmerket — og lenken ligger i innboksen din.\n\n"
-        "Hilsen send2me"
+        "From then on: while on any page, tap the send2me bookmark - "
+        "and the link lands in your inbox.\n\n"
+        "- send2me"
     ) % (token, js)
 
 
@@ -69,7 +70,7 @@ def sent_page_html():
         "<title>send2me</title></head>"
         "<body style='font-family:sans-serif;text-align:center;"
         "padding-top:1.6em;background:#fafafa'>"
-        "<div style='font-size:1.5em'>&#10003; Sendt</div>"
+        "<div style='font-size:1.5em'>&#10003; Sent</div>"
         "<script>setTimeout(function(){window.close();"
         "if(history.length>1){history.back();}},900);</script>"
         "</body></html>"

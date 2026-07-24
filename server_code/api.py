@@ -12,7 +12,7 @@ import logic
 def register_email(email):
     email_n = logic.normalize_email(email)
     if not logic.valid_email(email_n):
-        return {"ok": False, "error": "Ugyldig e-postadresse."}
+        return {"ok": False, "error": "Please enter a valid email address."}
     today = datetime.date.today()
     row = app_tables.subscribers.get(email=email_n)
     prev_date = row["reg_date"] if row else None
@@ -20,7 +20,7 @@ def register_email(email):
     count = logic.next_reg_count(prev_date, prev_count, today)
     if count is None:
         return {"ok": False,
-                "error": "For mange registreringer i dag. Prøv igjen i morgen."}
+                "error": "Too many registrations today. Try again tomorrow."}
     token = logic.new_token()
     if row:
         row.update(token=token, reg_date=today, reg_count=count)
@@ -31,7 +31,7 @@ def register_email(email):
             reg_date=today, reg_count=count)
     anvil.email.send(
         from_name="send2me", to=email_n,
-        subject="Din send2me-nøkkel",
+        subject="Your send2me key",
         text=logic.registration_email_text(token, logic.bookmarklet_js(token)))
     return {"ok": True}
 
@@ -42,7 +42,7 @@ def make_bookmarklet(token):
     row = app_tables.subscribers.get(token=token) if token else None
     if row is None:
         return {"ok": False,
-                "error": "Ukjent nøkkel. Sjekk at du limte inn hele nøkkelen fra e-posten."}
+                "error": "Unknown key. Check that you pasted the entire key from the email."}
     return {"ok": True, "js": logic.bookmarklet_js(token)}
 
 
@@ -61,9 +61,9 @@ def sendlink(**kwargs):
     row = app_tables.subscribers.get(token=token) if token else None
     if row is None:
         return _html(logic.error_page_html(
-            "Ukjent nøkkel. Registrer deg på send2me.app."), 403)
+            "Unknown key. Register at send2me.app."), 403)
     if not url:
-        return _html(logic.error_page_html("Mangler URL."), 400)
+        return _html(logic.error_page_html("Missing URL."), 400)
     anvil.email.send(
         from_name="send2me", to=row["email"],
         subject=(title or url), text=url)

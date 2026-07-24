@@ -35,7 +35,7 @@ mot GitHub-repoet; Anvil henter endringer automatisk. Appen ligger i repo-roten
 ```
 send2me/                     # = Anvil-appens repo, synket av Anvil
   anvil.yaml                 # Email-tjeneste, Data Tables, tabellskjema, startup-form
-  client_code/RegisterForm/  # registreringsside + bookmarklet-generator (norsk tekst)
+  client_code/RegisterForm/  # registreringsside + bookmarklet-generator (engelsk tekst)
   server_code/api.py         # registrering + /sendlink-endepunkt
   theme/                     # beholdes fra gammel app (inkl. papirfly-logo)
   README.md
@@ -106,7 +106,7 @@ Den gamle koden bekreftet begge designvalgene:
   havner i serverlogger — akseptert i denne trusselmodellen (tokenen kan uansett
   bare sende til eieren).
 - **RegisterForm:** tittel, kort forklaring, e-postfelt, «Registrer»-knapp,
-  statuslinje, samt «Lag bokmerke-lenke»-seksjonen. Norsk tekst. (Draggbar
+  statuslinje, samt «Lag bokmerke-lenke»-seksjonen. Engelsk tekst (endret fra norsk 2026-07-24 for delbarhet utenfor Norge; gjelder også e-post og kvitteringssider). Midtstilt smalt kort (hero-card-rolle) med logo; bokmerke-lenken stylet som dratbar pille med stiplet kant (bookmark-rolle). (Draggbar
   `javascript:`-lenke kan kreve en rå HTML-komponent hvis Anvils Link-komponent
   sanerer URL-en — implementasjonsdetalj.)
 - `anvil.yaml` deklarerer Email- og Data Tables-tjenestene og tabellskjemaet, slik

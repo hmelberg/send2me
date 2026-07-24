@@ -810,3 +810,8 @@ https://stackoverflow.com/questions/30533055/calculating-shadow-values-for-all-m
 .anvil-role-bookmark:hover {
   background-color: #D0E8FC;
 }
+
+/* No app bar: soft page background so the card stands out */
+body, .structure {
+  background-color: #F5F5F5;
+}

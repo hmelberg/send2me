@@ -69,10 +69,6 @@ components:
   name: content_panel
   properties: {role: hero-card}
   type: LinearPanel
-- layout_properties: {slot: title}
-  name: label_apptitle
-  properties: {align: left, role: headline, text: send2me}
-  type: Label
 container:
   properties: {html: '@theme:standard-page.html'}
   type: HtmlTemplate

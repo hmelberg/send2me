@@ -1,34 +1,36 @@
-services:
-- source: /runtime/services/anvil/email.yml
-  client_config: {}
-  server_config: {}
-- source: /runtime/services/tables.yml
-  client_config: {}
-  server_config: {auto_create_missing_columns: false}
-- source: /runtime/services/anvil/users.yml
-  client_config: {allow_signup: true, enable_automatically: true, use_email: true,
-    confirm_email: true}
-  server_config: {user_table: users}
-package_name: send2me
 allow_embedding: false
-name: send2me
-runtime_options: {version: 2, client_version: '3', server_version: python3-sandbox}
-metadata: {description: A one-click solution to send yourself the link to the web page you are browsing,
-  logo_img: 'asset:iconfinder_telegram_3246742.png', title: send2me}
-startup_form: Form1
 db_schema:
-- name: Users
-  id: 53406
-  python_name: users
-  columns:
-    MiuYr7LEE08=:
-      name: enabled
-      type: bool
-      admin_ui: {order: 1, width: 100}
-    ltZJZnSNcX4=:
+  users:
+    client: none
+    columns:
+    - admin_ui: {width: 200}
+      client_hidden: null
       name: email
       type: string
-      admin_ui: {order: 0, width: 200}
-  access: {python_name: users, app_id: UYSXQGT7J2OPYSQR, server: full, client: none,
-    table_mapping_name: null, table_mapping_id: null, table_id: 53406}
+    - admin_ui: {width: 100}
+      client_hidden: null
+      name: enabled
+      type: bool
+    indexes: []
+    server: full
+    title: Users
+metadata: {description: A one-click solution to send yourself the link to the web page you are browsing, logo_img: 'asset:iconfinder_telegram_3246742.png', title: send2me}
+name: send2me
+package_name: send2me
 renamed: true
+runtime_options:
+  client_version: '3'
+  server_spec: {}
+  server_version: python3-sandbox
+  version: 2
+services:
+- client_config: {}
+  server_config: {}
+  source: /runtime/services/anvil/email.yml
+- client_config: {}
+  server_config: {auto_create_missing_columns: false}
+  source: /runtime/services/tables.yml
+- client_config: {allow_signup: true, confirm_email: true, enable_automatically: true, use_email: true}
+  server_config: {user_table: users}
+  source: /runtime/services/anvil/users.yml
+startup_form: Form1

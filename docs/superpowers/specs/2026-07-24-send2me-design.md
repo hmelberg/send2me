@@ -82,10 +82,13 @@ Den gamle koden bekreftet begge designvalgene:
   synkes av nettleseren, så registrering én gang dekker alle enheter.
 - **Generering:** Registreringssiden har en seksjon «Lag bokmerke-lenke»: lim inn
   tokenen fra e-posten → en ferdig, personlig lenke vises, klar til å dras til
-  bokmerkelinjen. (E-posten kan ikke inneholde lenken direkte — Gmail o.l.
-  stripper `javascript:`-lenker. Genereringen skjer rent klientside, så
-  token-i-innboksen-modellen bevares.) E-posten inneholder kort oppskrift for
-  mobil (lagre bokmerke, rediger, lim inn koden).
+  bokmerkelinjen. (E-posten kan ikke inneholde lenken direkte som klikkbar lenke —
+  Gmail o.l. stripper `javascript:`-lenker.) Bookmarklet-strengen genereres
+  **server-side** (`logic.bookmarklet_js`): den må uansett inn i
+  registrerings-eposten som ren tekst for mobiloppskriften (lagre bokmerke,
+  rediger, lim inn koden), og siden serveren allerede kjenner alle tokens,
+  endrer ikke dette sikkerhetsmodellen. Siden kaller `make_bookmarklet` for å
+  få nøyaktig samme streng.
 
 ## Anvil-appen
 

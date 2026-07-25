@@ -1,11 +1,44 @@
 import datetime
+import json
 
+import anvil
 import anvil.email
 import anvil.server
 import anvil.tables as tables
 from anvil.tables import app_tables
 
 import logic
+
+
+def _subscriber(token):
+    token = (token or "").strip()
+    return app_tables.subscribers.get(token=token) if token else None
+
+
+def _link_dict(row):
+    return {"id": row.get_id(), "url": row["url"], "title": row["title"],
+            "saved": row["saved"], "fetched_at": row["fetched_at"],
+            "tags": row["tags"] or "", "note": row["note"] or "",
+            "starred": bool(row["starred"])}
+
+
+def _jsonable(d):
+    out = dict(d)
+    for k in ("saved", "fetched_at"):
+        out[k] = out[k].isoformat(sep=" ", timespec="minutes") if out[k] else None
+    return out
+
+
+def _html(body, status):
+    resp = anvil.server.HttpResponse(status, body)
+    resp.headers["Content-Type"] = "text/html; charset=utf-8"
+    return resp
+
+
+def _json(payload, status):
+    resp = anvil.server.HttpResponse(status, json.dumps(payload))
+    resp.headers["Content-Type"] = "application/json"
+    return resp
 
 
 @anvil.server.callable
@@ -32,7 +65,8 @@ def register_email(email):
     anvil.email.send(
         from_name="send2me", to=email_n,
         subject="Your send2me key",
-        text=logic.registration_email_text(token, logic.bookmarklet_js(token)))
+        text=logic.registration_email_text(
+            token, logic.bookmarklet_js(token), logic.links_page_url(token)))
     return {"ok": True}
 
 
@@ -43,28 +77,154 @@ def make_bookmarklet(token):
     if row is None:
         return {"ok": False,
                 "error": "Unknown key. Check that you pasted the entire key from the email."}
-    return {"ok": True, "js": logic.bookmarklet_js(token)}
-
-
-def _html(body, status):
-    resp = anvil.server.HttpResponse(status, body)
-    resp.headers["Content-Type"] = "text/html; charset=utf-8"
-    return resp
+    return {"ok": True, "js": logic.bookmarklet_js(token),
+            "links_url": logic.links_page_url(token)}
 
 
 @anvil.server.http_endpoint("/sendlink")
 def sendlink(**kwargs):
     params = anvil.server.request.query_params
-    token = (params.get("token") or "").strip()
     url = params.get("url") or ""
     title = params.get("title") or ""
-    row = app_tables.subscribers.get(token=token) if token else None
+    row = _subscriber(params.get("token"))
     if row is None:
         return _html(logic.error_page_html(
             "Unknown key. Register at send2me.app."), 403)
     if not url:
         return _html(logic.error_page_html("Missing URL."), 400)
-    anvil.email.send(
-        from_name="send2me", to=row["email"],
-        subject=(title or url), text=url)
-    return _html(logic.sent_page_html(), 200)
+    mode = logic.normalize_mode(row["mode"])
+    if mode != "email":
+        app_tables.links.add_row(
+            email=row["email"], url=url, title=title,
+            saved=datetime.datetime.now(), fetched_at=None,
+            tags=logic.normalize_tags(row["current_tag"]),
+            note="", starred=False)
+    if mode != "save":
+        anvil.email.send(
+            from_name="send2me", to=row["email"],
+            subject=(title or url), text=url)
+    return _html(logic.sent_page_html("Saved" if mode == "save" else "Sent"), 200)
+
+
+@anvil.server.callable
+def get_settings(token):
+    row = _subscriber(token)
+    if row is None:
+        return {"ok": False, "error": "Unknown key."}
+    return {"ok": True, "email": row["email"],
+            "mode": logic.normalize_mode(row["mode"]),
+            "current_tag": row["current_tag"] or ""}
+
+
+@anvil.server.callable
+def save_settings(token, mode, current_tag):
+    row = _subscriber(token)
+    if row is None:
+        return {"ok": False, "error": "Unknown key."}
+    row.update(mode=logic.normalize_mode(mode),
+               current_tag=logic.normalize_tags(current_tag))
+    return {"ok": True}
+
+
+@anvil.server.callable
+def get_my_links(token):
+    row = _subscriber(token)
+    if row is None:
+        return {"ok": False, "error": "Unknown key."}
+    rows = app_tables.links.search(tables.order_by("saved", ascending=False),
+                                   email=row["email"])
+    return {"ok": True, "links": [_jsonable(_link_dict(r)) for r in rows]}
+
+
+def _own_link(token, link_id):
+    row = _subscriber(token)
+    if row is None:
+        return None
+    link = app_tables.links.get_by_id(link_id)
+    if link is None or link["email"] != row["email"]:
+        return None
+    return link
+
+
+@anvil.server.callable
+def update_link(token, link_id, tags=None, note=None, starred=None):
+    link = _own_link(token, link_id)
+    if link is None:
+        return {"ok": False, "error": "Not found."}
+    if tags is not None:
+        link["tags"] = logic.normalize_tags(tags)
+    if note is not None:
+        link["note"] = (note or "").strip()
+    if starred is not None:
+        link["starred"] = bool(starred)
+    return {"ok": True, "tags": link["tags"] or ""}
+
+
+@anvil.server.callable
+def delete_link(token, link_id):
+    link = _own_link(token, link_id)
+    if link is None:
+        return {"ok": False, "error": "Not found."}
+    link.delete()
+    return {"ok": True}
+
+
+@anvil.server.callable
+def delete_all_links(token):
+    row = _subscriber(token)
+    if row is None:
+        return {"ok": False, "error": "Unknown key."}
+    n = 0
+    for link in app_tables.links.search(email=row["email"]):
+        link.delete()
+        n += 1
+    return {"ok": True, "deleted": n}
+
+
+@anvil.server.callable
+def export_csv(token):
+    row = _subscriber(token)
+    if row is None:
+        return None
+    rows = app_tables.links.search(tables.order_by("saved", ascending=False),
+                                   email=row["email"])
+    csv_text = logic.links_to_csv([_link_dict(r) for r in rows])
+    return anvil.BlobMedia("text/csv", csv_text.encode("utf-8"),
+                           name="send2me-links.csv")
+
+
+def _query_links(row, params):
+    filters, err = logic.parse_links_query(params)
+    if err:
+        return {"ok": False, "error": err}
+    result = []
+    for link in app_tables.links.search(tables.order_by("saved", ascending=False),
+                                        email=row["email"]):
+        d = _link_dict(link)
+        if logic.link_matches(d, filters):
+            result.append((link, d))
+    if not filters["keep"]:
+        now = datetime.datetime.now()
+        for link, d in result:
+            link["fetched_at"] = now
+    return {"ok": True, "count": len(result),
+            "links": [_jsonable(d) for _, d in result]}
+
+
+@anvil.server.callable
+def get_links(token, **params):
+    row = _subscriber(token)
+    if row is None:
+        return {"ok": False, "error": "Unknown key."}
+    return _query_links(row, params)
+
+
+@anvil.server.http_endpoint("/links")
+def links_endpoint(**kwargs):
+    params = anvil.server.request.query_params
+    row = _subscriber(params.get("token"))
+    if row is None:
+        return _json({"ok": False,
+                      "error": "Unknown key. Register at send2me.app."}, 403)
+    result = _query_links(row, params)
+    return _json(result, 200 if result["ok"] else 400)

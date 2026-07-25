@@ -1,5 +1,35 @@
 allow_embedding: false
 db_schema:
+  links:
+    client: none
+    columns:
+    - admin_ui: {width: 200}
+      name: email
+      type: string
+    - admin_ui: {width: 300}
+      name: url
+      type: string
+    - admin_ui: {width: 250}
+      name: title
+      type: string
+    - admin_ui: {width: 150}
+      name: saved
+      type: datetime
+    - admin_ui: {width: 150}
+      name: fetched_at
+      type: datetime
+    - admin_ui: {width: 150}
+      name: tags
+      type: string
+    - admin_ui: {width: 200}
+      name: note
+      type: string
+    - admin_ui: {width: 80}
+      name: starred
+      type: bool
+    indexes: []
+    server: full
+    title: Links
   subscribers:
     client: none
     columns:
@@ -18,6 +48,12 @@ db_schema:
     - admin_ui: {width: 100}
       name: reg_count
       type: number
+    - admin_ui: {width: 100}
+      name: mode
+      type: string
+    - admin_ui: {width: 150}
+      name: current_tag
+      type: string
     indexes: []
     server: full
     title: Subscribers

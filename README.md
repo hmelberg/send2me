@@ -17,6 +17,34 @@ Bookmarkleten åpner et vindu mot `GET /_/api/sendlink` i stedet for å bruke
 som parameter (Referer-headeren inneholder bare domenet i moderne nettlesere,
 som var feilen i forrige versjon av denne appen).
 
+## My links (v2)
+
+Nøkkelen er også innloggingen: e-posten inneholder en personlig arkivlenke
+`https://send2me.app/#?key=<NØKKEL>` (nøkkelen ligger i hash-delen og sendes
+aldri til serveren). Dra den til bokmerkelinjen som «🔑 my links», eller lim
+inn nøkkelen manuelt på siden.
+
+- **Sendemodus per bruker:** *Email me the link* / *Save to My links* /
+  *Email and save* (default). Bookmarkleten er uendret uansett modus.
+- **Klebrig stikkord:** sett «current tag» på arkivsiden — alt som lagres
+  merkes automatisk til taggen endres/tømmes. Lagringsklikket spør aldri om noe.
+- **Per lenke:** stjerne (★), stikkord og notat redigeres inline (autolagres);
+  ✕ sletter. «Export CSV» og «Delete everything» finnes også.
+
+### API
+
+```
+curl "https://send2me.app/_/api/links?token=NØKKEL"            # uhentede; merkes hentet
+curl "https://send2me.app/_/api/links?token=NØKKEL&all=1"      # alt
+curl "https://send2me.app/_/api/links?token=NØKKEL&keep=1"     # ikke merk som hentet
+curl "https://send2me.app/_/api/links?token=NØKKEL&since=2026-07-01&until=2026-07-31"
+curl "https://send2me.app/_/api/links?token=NØKKEL&tag=helse&starred=1"
+```
+
+Svar: `{"ok": true, "count": n, "links": [{url, title, saved, fetched_at,
+tags, note, starred}, ...]}`. Samme funksjon er server-callable for Uplink:
+`anvil.server.call('get_links', NØKKEL, all=1)`.
+
 ## Utvikling
 
 - Repoet er git-synket med Anvil-appen: push til `master` → Anvil henter og

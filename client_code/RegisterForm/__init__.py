@@ -7,6 +7,9 @@ class RegisterForm(RegisterFormTemplate):
 
     def __init__(self, **properties):
         self.init_components(**properties)
+        params = get_url_hash()
+        if isinstance(params, dict) and params.get("key"):
+            open_form('LinksForm', key=params["key"])
 
     def button_register_click(self, **event_args):
         self.label_reg_status.text = "Sending ..."
@@ -25,6 +28,8 @@ class RegisterForm(RegisterFormTemplate):
         if result["ok"]:
             self.link_bookmarklet.url = result["js"]
             self.link_bookmarklet.visible = True
+            self.link_mylinks.url = result["links_url"]
+            self.link_mylinks.visible = True
             self.label_step3.visible = True
         else:
             self.label_make_status.text = result["error"]

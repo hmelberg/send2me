@@ -179,5 +179,7 @@ roles:
   name: selected
 - components: [LinearPanel]
   name: hero-card
+- components: [LinearPanel]
+  name: wide-card
 - components: [Link]
   name: bookmark

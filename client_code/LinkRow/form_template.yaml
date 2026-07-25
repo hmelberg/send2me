@@ -1,0 +1,36 @@
+components:
+- layout_properties: {}
+  name: label_date
+  properties: {foreground: 'theme:Gray 600', text: ''}
+  type: Label
+- components: []
+  event_bindings: {click: link_star_click}
+  layout_properties: {}
+  name: link_star
+  properties: {bold: true, text: "☆", tooltip: Star this link, url: ''}
+  type: Link
+- components: []
+  layout_properties: {}
+  name: link_title
+  properties: {bold: true, text: '', url: ''}
+  type: Link
+- event_bindings: {lost_focus: text_box_tags_lost_focus}
+  layout_properties: {}
+  name: text_box_tags
+  properties: {placeholder: tags, width: 150}
+  type: TextBox
+- event_bindings: {lost_focus: text_box_note_lost_focus}
+  layout_properties: {}
+  name: text_box_note
+  properties: {placeholder: note, width: 220}
+  type: TextBox
+- components: []
+  event_bindings: {click: link_delete_click}
+  layout_properties: {}
+  name: link_delete
+  properties: {foreground: 'theme:Gray 600', text: "✕", tooltip: Delete this link, url: ''}
+  type: Link
+container:
+  properties: {}
+  type: FlowPanel
+is_package: true

@@ -1,0 +1,65 @@
+components:
+- components:
+  - layout_properties: {}
+    name: label_title
+    properties: {align: center, role: headline, text: My links}
+    type: Label
+  - layout_properties: {}
+    name: label_status
+    properties: {align: center, foreground: 'theme:Gray 600', text: ''}
+    type: Label
+  - event_bindings: {pressed_enter: text_box_key_pressed_enter}
+    layout_properties: {}
+    name: text_box_key
+    properties: {placeholder: 'paste your key from the email'}
+    type: TextBox
+  - event_bindings: {click: button_open_click}
+    layout_properties: {}
+    name: button_open
+    properties: {align: full, role: primary-color, text: Open my links}
+    type: Button
+  - components:
+    - layout_properties: {}
+      name: drop_down_mode
+      properties: {}
+      type: DropDown
+    - layout_properties: {}
+      name: text_box_current_tag
+      properties: {placeholder: 'current tag(s) - added to every new save', width: 260}
+      type: TextBox
+    - event_bindings: {click: button_save_settings_click}
+      layout_properties: {}
+      name: button_save_settings
+      properties: {role: primary-color, text: Save settings}
+      type: Button
+    layout_properties: {}
+    name: settings_panel
+    properties: {visible: false}
+    type: FlowPanel
+  - components:
+    - event_bindings: {click: button_export_click}
+      layout_properties: {}
+      name: button_export
+      properties: {text: Export CSV}
+      type: Button
+    - event_bindings: {click: button_delete_all_click}
+      layout_properties: {}
+      name: button_delete_all
+      properties: {text: Delete everything}
+      type: Button
+    layout_properties: {}
+    name: actions_panel
+    properties: {visible: false}
+    type: FlowPanel
+  - layout_properties: {}
+    name: repeating_panel_links
+    properties: {item_template: LinkRow}
+    type: RepeatingPanel
+  layout_properties: {slot: default}
+  name: content_panel
+  properties: {role: wide-card}
+  type: LinearPanel
+container:
+  properties: {html: '@theme:standard-page.html'}
+  type: HtmlTemplate
+is_package: true

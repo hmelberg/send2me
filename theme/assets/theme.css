@@ -815,3 +815,21 @@ https://stackoverflow.com/questions/30533055/calculating-shadow-values-for-all-m
 body, .structure {
   background-color: #F5F5F5;
 }
+
+/* Wider card for the My links archive page */
+.anvil-role-wide-card {
+  display: block;
+  max-width: 56rem;
+  margin: 4vh auto 3rem;
+  padding: 2rem 2.2rem 2.4rem;
+  border-radius: 14px;
+  background-color: white;
+  box-shadow: 0 12px 32px rgba(33, 150, 243, 0.12), 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+
+@media (max-width: 640px) {
+  .anvil-role-wide-card {
+    margin: 1rem 0.8rem 2rem;
+    padding: 1.4rem 1rem 1.8rem;
+  }
+}

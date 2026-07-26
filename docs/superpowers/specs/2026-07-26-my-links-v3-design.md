@@ -23,7 +23,12 @@ FlowPanel som brekker, og kortet er begrenset til 56 rem selv på brede skjermer
    stikkord, notat, slett. Stikkord og notat redigeres inline på rada.
 3. **0–3 stjerner** i stedet for boolsk stjerne.
 4. **Verktøylinje** over lista: fritekstsøk (tittel, URL, stikkord, notat),
-   stikkord-nedtrekk, dato-nedtrekk, «Clear».
+   stikkord-nedtrekk, dato-nedtrekk, «Clear». Den er høyrestilt, i flukt med
+   ikonene i overskrifta, og bevisst nedtonet — 13 px i Gray 600 mot lenkenes
+   15 px, med lyse rammer og blek nedtrekkspil. Hver kontroll skjerpes til
+   svart tekst og blå ramme når den får fokus, så den er tydelig i bruk og
+   stille ellers. Filteret er et verktøy man tar fram, ikke noe som skal
+   konkurrere med lista.
 5. **Sortering via kolonneoverskrifter** (★, Date, Title) — klikk snur retning.
 6. **Bredere kort** som bruker skjermens bredde (inntil 1500 px).
 
@@ -32,8 +37,7 @@ FlowPanel som brekker, og kortet er begrenset til 56 rem selv på brede skjermer
 ```
 ┌────────────────────────────────────────────────────────────────────┐
 │  My links                     24 links   🏷 [helse    ]   ⬇    ⚙   │
-│                                                                    │
-│  [ Search title, tags, notes…      ] [Tag ▾] [Any time ▾]  Clear   │
+│               [ Search title, tags, notes… ] [Tag ▾] [Any time ▾] Clear │
 │                                                                    │
 │   ★     Date        Title                 Tags        Note         │
 │  ★★☆   07-24   Helseatlas 2026 ↗          helse       les kap 3  ✕ │

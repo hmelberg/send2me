@@ -953,10 +953,12 @@ input.anvil-component.anvil-role-header-tag-input:focus {
   margin: 0;
 }
 
-/* Filter bar */
+/* Filter bar: right-aligned under the header controls, and deliberately quiet -
+   it should not compete with the list. Each control sharpens on focus. */
 .flow-panel.anvil-role-toolbar > .flow-panel-gutter {
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
   gap: 0.4rem 1rem;
   margin: 1rem 0 0.3rem;
@@ -965,30 +967,44 @@ input.anvil-component.anvil-role-header-tag-input:focus {
   margin: 0;
 }
 input.anvil-component.anvil-role-toolbar-search {
-  width: 22rem;
+  width: 20rem;
   max-width: 100%;
   margin-bottom: 0;
-  padding: 7px 12px;
-  border: 1px solid #D7DEE5;
+  padding: 6px 12px;
+  border: 1px solid #E4E9ED;
   border-radius: 999px;
   background-color: #FBFCFD;
-  font-size: 15px;
+  color: %color:Gray 600%;
+  font-size: 13px;
 }
-input.anvil-component.anvil-role-toolbar-search:hover,
+input.anvil-component.anvil-role-toolbar-search::placeholder { color: #A7AFB6; }
+input.anvil-component.anvil-role-toolbar-search:hover {
+  padding: 6px 12px;
+  border: 1px solid #D2DAE1;
+}
 input.anvil-component.anvil-role-toolbar-search:focus {
+  padding: 6px 12px;
   border: 1px solid %color:Primary 500%;
-  padding: 7px 12px;
   background-color: white;
+  color: rgba(0, 0, 0, 0.87);
 }
 .anvil-role-toolbar .anvil-dropdown select.form-control {
   margin-bottom: 0;
-  border-bottom: 1px solid #D7DEE5;
-  color: %color:Gray 800%;
-  font-size: 15px;
+  border-bottom: 1px solid #E4E9ED;
+  color: %color:Gray 600%;
+  font-size: 13px;
 }
+.anvil-role-toolbar .anvil-dropdown select.form-control:hover {
+  border-bottom: 1px solid #D2DAE1;
+}
+.anvil-role-toolbar .anvil-dropdown select.form-control:focus {
+  border-bottom: 1px solid %color:Primary 500%;
+  color: rgba(0, 0, 0, 0.87);
+}
+.anvil-role-toolbar .anvil-dropdown form:before { color: #A7AFB6; }
 a.anvil-role-toolbar-clear {
-  color: %color:Gray 600% !important;
-  font-size: 14px;
+  color: #A7AFB6 !important;
+  font-size: 13px;
 }
 a.anvil-role-toolbar-clear:hover { color: %color:Primary 700% !important; }
 

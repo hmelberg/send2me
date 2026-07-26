@@ -9,6 +9,29 @@ components:
       name: label_count
       properties: {role: header-count, text: ''}
       type: Label
+    - components:
+      - layout_properties: {}
+        name: label_tag_icon
+        properties: {icon: 'fa:tag', role: header-tag-icon, text: '',
+          tooltip: 'Tag added to every new link you save'}
+        type: Label
+      - event_bindings: {lost_focus: current_tag_saved, pressed_enter: current_tag_saved}
+        layout_properties: {}
+        name: text_box_current_tag
+        properties: {placeholder: 'current tag', role: header-tag-input,
+          tooltip: 'Tag added to every new link you save'}
+        type: TextBox
+      layout_properties: {}
+      name: tag_panel
+      properties: {role: header-tag, visible: false}
+      type: FlowPanel
+    - components: []
+      event_bindings: {click: link_export_click}
+      layout_properties: {}
+      name: link_export
+      properties: {icon: 'fa:download', role: header-icon, tooltip: Export CSV,
+        url: '', visible: false}
+      type: Link
     - components: []
       event_bindings: {click: link_settings_click}
       layout_properties: {}
@@ -30,23 +53,14 @@ components:
       properties: {role: settings-email, text: ''}
       type: Label
     - layout_properties: {}
+      name: label_mode
+      properties: {role: settings-label, text: 'When I click the bookmark:'}
+      type: Label
+    - event_bindings: {change: mode_changed}
+      layout_properties: {}
       name: drop_down_mode
       properties: {}
       type: DropDown
-    - layout_properties: {}
-      name: text_box_current_tag
-      properties: {placeholder: 'current tag(s) - added to every new save', width: 260}
-      type: TextBox
-    - event_bindings: {click: button_save_settings_click}
-      layout_properties: {}
-      name: button_save_settings
-      properties: {role: primary-color, text: Save settings}
-      type: Button
-    - event_bindings: {click: button_export_click}
-      layout_properties: {}
-      name: button_export
-      properties: {text: Export CSV}
-      type: Button
     - event_bindings: {click: button_delete_all_click}
       layout_properties: {}
       name: button_delete_all

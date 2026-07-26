@@ -20,6 +20,8 @@ class LinksForm(LinksFormTemplate):
         self.links = []
         self.sort_key = "saved"
         self.sort_descending = True
+        self.saved_mode = None
+        self.saved_tag = None
         self.drop_down_mode.items = [
             ("Email me the link", "email"),
             ("Save to My links", "save"),
@@ -44,12 +46,16 @@ class LinksForm(LinksFormTemplate):
             return
         self._status("")
         self.login_panel.visible = False
+        self.tag_panel.visible = True
+        self.link_export.visible = True
         self.link_settings.visible = True
         self.toolbar_panel.visible = True
         self.head_panel.visible = True
         self.label_email.text = "Signed in as " + settings["email"]
         self.drop_down_mode.selected_value = settings["mode"]
         self.text_box_current_tag.text = settings["current_tag"]
+        self.saved_mode = settings["mode"]
+        self.saved_tag = settings["current_tag"]
         result = anvil.server.call('get_my_links', self.key)
         if not result["ok"]:
             self._status(result["error"])
@@ -140,13 +146,32 @@ class LinksForm(LinksFormTemplate):
     def link_settings_click(self, **event_args):
         self.settings_panel.visible = not self.settings_panel.visible
 
-    def button_save_settings_click(self, **event_args):
-        result = anvil.server.call('save_settings', self.key,
-                                   self.drop_down_mode.selected_value,
-                                   self.text_box_current_tag.text or "")
-        self._status("Settings saved." if result["ok"] else result["error"])
+    def current_tag_saved(self, **event_args):
+        self._save_settings("Saving new links as: ")
 
-    def button_export_click(self, **event_args):
+    def mode_changed(self, **event_args):
+        self._save_settings()
+
+    def _save_settings(self, prefix=None):
+        """Both settings save themselves; nothing to press. Skipped when
+        neither has actually changed, so leaving the tag box costs nothing."""
+        mode = self.drop_down_mode.selected_value
+        tag = self.text_box_current_tag.text or ""
+        if not self.key or (mode == self.saved_mode and tag == self.saved_tag):
+            return
+        result = anvil.server.call('save_settings', self.key, mode, tag)
+        if not result["ok"]:
+            self._status(result["error"])
+            return
+        self.text_box_current_tag.text = result["current_tag"]
+        self.saved_mode = mode
+        self.saved_tag = result["current_tag"]
+        if prefix is None:
+            self._status("Settings saved.")
+        else:
+            self._status(prefix + (result["current_tag"] or "no tag"))
+
+    def link_export_click(self, **event_args):
         media = anvil.server.call('export_csv', self.key)
         if media:
             anvil.media.download(media)

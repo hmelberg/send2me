@@ -195,6 +195,14 @@ roles:
   name: settings-panel
 - components: [Label]
   name: settings-email
+- components: [Label]
+  name: settings-label
+- components: [FlowPanel]
+  name: header-tag
+- components: [Label]
+  name: header-tag-icon
+- components: [TextBox]
+  name: header-tag-input
 - components: [FlowPanel]
   name: login-panel
 - components: [FlowPanel]

@@ -14,10 +14,11 @@ FlowPanel som brekker, og kortet er begrenset til 56 rem selv på brede skjermer
 
 ## Hva v3 endrer
 
-1. **Innstillinger bak et tannhjul.** Tannhjulet ligger til høyre for
-   overskriften «My links»; panelet er skjult som standard og folder seg ut
-   over lista når man trykker. Alt som ikke er lenker flytter dit: e-post,
-   modus, current tag, Save settings, Export CSV, Delete everything.
+1. **Innstillinger bak et tannhjul.** Overskriftsrada får en høyremeny:
+   current tag som en liten pille, et nedlastingsikon for Export CSV, og
+   tannhjulet. De to tingene man gjør ofte — bytte stikkord og hente ut CSV —
+   ligger dermed ett klikk unna, mens panelet bak tannhjulet (e-post,
+   sendemodus, Delete everything) er skjult som standard.
 2. **Én lenke = én rad.** Seks kolonner i CSS-grid: stjerner, dato, tittel,
    stikkord, notat, slett. Stikkord og notat redigeres inline på rada.
 3. **0–3 stjerner** i stedet for boolsk stjerne.
@@ -30,7 +31,7 @@ FlowPanel som brekker, og kortet er begrenset til 56 rem selv på brede skjermer
 
 ```
 ┌────────────────────────────────────────────────────────────────────┐
-│  My links                                     24 links        ⚙︎   │
+│  My links                     24 links   🏷 [helse    ]   ⬇    ⚙   │
 │                                                                    │
 │  [ Search title, tags, notes…      ] [Tag ▾] [Any time ▾]  Clear   │
 │                                                                    │
@@ -44,13 +45,15 @@ FlowPanel som brekker, og kortet er begrenset til 56 rem selv på brede skjermer
 Tannhjulet folder ut over lista:
 
 ```
-│  My links                                     24 links        ⚙︎   │
+│  My links                     24 links   🏷 [helse    ]   ⬇    ⚙   │
 │  ┌──────────────────────────────────────────────────────────────┐  │
-│  │ hans.melberg@gmail.com                                       │  │
-│  │ [Email and save ▾] [current tag(s)…] [Save settings]         │  │
-│  │ [Export CSV] [Delete everything]                             │  │
+│  │ Signed in as hans.melberg@gmail.com                          │  │
+│  │ When I click the bookmark: [Email and save ▾]  [Delete all]  │  │
 │  └──────────────────────────────────────────────────────────────┘  │
 ```
+
+Under 480 px legger overskrifta seg på to linjer: tittelen øverst, så
+antall, tag-pilla og ikonene.
 
 Datoen vises som `MM-DD` for inneværende år og `YYYY-MM-DD` ellers, slik at
 kolonna holder seg smal uten å bli tvetydig.
@@ -131,9 +134,22 @@ slik at `LinksForm` kan fjerne lenka fra sin egen liste og oppdatere
 stikkord-nedtrekket. Ingen av dem trenger å kjenne den andres innmat.
 
 Nye roller i `theme/parameters.yaml`: `page-header`, `header-count`,
-`header-icon`, `status-line`, `settings-panel`, `settings-email`, `toolbar`,
-`toolbar-search`, `toolbar-clear`, `link-head`, `link-row`, `stars`, `star`,
-`row-date`, `row-title`, `row-input`, `row-delete`, `empty-state`.
+`header-icon`, `header-tag`, `header-tag-icon`, `header-tag-input`,
+`status-line`, `settings-panel`, `settings-email`, `settings-label`,
+`login-panel`, `toolbar`, `toolbar-search`, `toolbar-clear`, `link-head`,
+`head-cell`, `link-list`, `link-row`, `stars`, `star`, `row-date`,
+`row-title`, `row-input`, `row-delete`, `empty-state`.
+
+## Innstillinger som lagrer seg selv
+
+Med current tag flyttet til overskrifta ville en «Save settings»-knapp bety at
+man måtte treffe to steder for å bytte stikkord. Begge innstillingene lagrer
+seg derfor selv — taggen når feltet forlates eller man trykker Enter, modus
+når nedtrekket endres — og knappen er fjernet. `_save_settings` sammenlikner
+mot sist lagrede verdi og hopper over kallet når ingenting er endret, så det
+koster ingenting å klikke ut av tag-feltet. `save_settings` returnerer den
+normaliserte taggen, som skrives tilbake i feltet og bekreftes på statuslinja
+(«Saving new links as: helse»).
 
 ## Testing
 

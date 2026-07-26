@@ -123,7 +123,7 @@ def save_settings(token, mode, current_tag):
         return {"ok": False, "error": "Unknown key."}
     row.update(mode=logic.normalize_mode(mode),
                current_tag=logic.normalize_tags(current_tag))
-    return {"ok": True}
+    return {"ok": True, "current_tag": row["current_tag"] or ""}
 
 
 @anvil.server.callable

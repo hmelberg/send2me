@@ -839,6 +839,7 @@ body, .structure {
    gets 16px 24px), which would inset the list from the card edges. These panels set
    their own spacing on the gutter instead, so the columns get the full card width. */
 .anvil-container.anvil-role-page-header,
+.anvil-container.anvil-role-header-tag,
 .anvil-container.anvil-role-settings-panel,
 .anvil-container.anvil-role-login-panel,
 .anvil-container.anvil-role-toolbar,
@@ -850,7 +851,7 @@ body, .structure {
 /* Header: title on the left, count and settings cog on the right */
 .flow-panel.anvil-role-page-header > .flow-panel-gutter {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   margin: 0.2rem 0 0;
   border-bottom: 1px solid #E8ECF0;
   padding-bottom: 0.5rem;
@@ -869,14 +870,45 @@ body, .structure {
 }
 a.anvil-role-header-icon {
   color: %color:Gray 600% !important;
-  font-size: 20px;
-  align-self: center;
+  font-size: 19px;
   border-radius: 50%;
-  padding: 0 2px;
+  padding: 0 3px;
 }
 a.anvil-role-header-icon:hover {
   color: %color:Primary 700% !important;
   background-color: #EAF4FE;
+}
+
+/* The current tag lives in the header so it can be changed in one click */
+.flow-panel.anvil-role-header-tag > .flow-panel-gutter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+.flow-panel.anvil-role-header-tag > .flow-panel-gutter > .flow-panel-item { margin: 0; }
+.anvil-role-header-tag-icon {
+  color: %color:Gray 600%;
+  font-size: 13px;
+}
+.anvil-role-header-tag-icon > .anvil-component-icon {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+input.anvil-component.anvil-role-header-tag-input {
+  width: 9.5rem;
+  margin-bottom: 0;
+  padding: 4px 10px;
+  border: 1px solid #DDE3E9;
+  border-radius: 999px;
+  background-color: #FBFCFD;
+  font-size: 13px;
+}
+input.anvil-component.anvil-role-header-tag-input:hover,
+input.anvil-component.anvil-role-header-tag-input:focus {
+  padding: 4px 10px;
+  border: 1px solid %color:Primary 500%;
+  background-color: white;
 }
 
 .anvil-role-status-line > .label-text {
@@ -901,7 +933,14 @@ a.anvil-role-header-icon:hover {
 .anvil-role-settings-email > .label-text {
   color: %color:Gray 600%;
   font-size: 14px;
+}
+/* the email gets its own line; flex-basis has to go on the item, not the label */
+.flow-panel.anvil-role-settings-panel > .flow-panel-gutter > .flow-panel-item:first-child {
   flex-basis: 100%;
+}
+.anvil-role-settings-label > .label-text {
+  color: %color:Gray 800%;
+  font-size: 14px;
 }
 
 .flow-panel.anvil-role-login-panel > .flow-panel-gutter {
@@ -1085,4 +1124,21 @@ a.anvil-role-row-delete > .link-text { padding: 5px 0; }
     flex: 1 1 100%;
   }
   input.anvil-component.anvil-role-toolbar-search { width: 100%; }
+  input.anvil-component.anvil-role-header-tag-input { width: 7rem; }
+}
+
+/* Phones: the title takes the first line, the tag pill and icons the second */
+@media (max-width: 480px) {
+  .flow-panel.anvil-role-page-header > .flow-panel-gutter {
+    flex-wrap: wrap;
+    row-gap: 0.4rem;
+  }
+  .flow-panel.anvil-role-page-header > .flow-panel-gutter > .flow-panel-item:first-child {
+    flex-basis: 100%;
+    margin-right: 0;
+  }
+  .flow-panel.anvil-role-page-header > .flow-panel-gutter > .flow-panel-item:nth-child(2) {
+    margin-left: 0;
+    margin-right: auto;
+  }
 }

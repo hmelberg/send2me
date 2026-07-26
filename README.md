@@ -27,12 +27,15 @@ inn nøkkelen manuelt på siden.
 Lenkelista er det eneste som står i fokus. Én lenke = én rad, med stjerner,
 dato, tittel, stikkord og notat i faste kolonner:
 
-- **Innstillinger bak tannhjulet** (⚙, til høyre for overskriften): e-post,
-  sendemodus, current tag, Export CSV og Delete everything. Skjult som standard.
+- **Høyremeny i overskrifta:** current tag som en pille (🏷), Export CSV som
+  nedlastingsikon (⬇) og tannhjulet (⚙). Bak tannhjulet, skjult som standard:
+  e-post, sendemodus og Delete everything.
 - **Sendemodus per bruker:** *Email me the link* / *Save to My links* /
   *Email and save* (default). Bookmarkleten er uendret uansett modus.
-- **Klebrig stikkord:** sett «current tag» i innstillingene — alt som lagres
+- **Klebrig stikkord:** skriv i tag-pilla i overskrifta — alt som lagres
   merkes automatisk til taggen endres/tømmes. Lagringsklikket spør aldri om noe.
+- **Ingen «Save settings»-knapp:** både taggen og modusen lagrer seg selv
+  (taggen når feltet forlates eller ved Enter, modusen når den endres).
 - **Per lenke:** 0–3 stjerner (klikk stjerne *n* for den verdien, klikk den
   øverste igjen for å nullstille), stikkord og notat redigeres inline og
   autolagres. ✕ til høyre sletter (vises når musa er over rada).

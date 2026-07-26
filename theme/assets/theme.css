@@ -1046,8 +1046,20 @@ a.anvil-role-head-cell > .link-text {
 }
 a.anvil-role-head-cell:hover > .link-text { color: %color:Primary 700%; }
 
+/* Anvil puts `width: 100%` inline on the dropdown's <form>, which parks its
+   caret at the far edge of the 150px column - the arrow ends up reading as a
+   stray mark between TAGS and NOTE rather than as part of TAGS. Shrinking the
+   control to its own text puts the caret right after the word, the way the
+   sort arrow sits after DATE. The inline style is why !important is needed. */
+.anvil-role-head-select {
+  display: inline-block;
+  width: auto;
+  max-width: 100%;
+}
+.anvil-role-head-select form { width: auto !important; }
 .anvil-role-head-select select.form-control {
-  width: 100%;
+  width: auto !important;
+  max-width: 100%;
   height: auto;
   margin-bottom: 0;
   padding: 4px 1.2em 4px 0;

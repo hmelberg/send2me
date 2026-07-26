@@ -63,6 +63,49 @@ class TestTexts(unittest.TestCase):
         self.assertIn("javascript:x", txt)
         self.assertIn("https://send2me.app/#?key=TOK", txt)
 
+    def test_email_states_the_mode_default_and_the_limits(self):
+        txt = logic.registration_email_text("TOK", "js", "url")
+        self.assertIn("Both is", txt)
+        self.assertIn("Settings", txt)
+        self.assertIn("%d months" % logic.RETENTION_MONTHS, txt)
+        self.assertIn("%d" % logic.MAX_LINKS, txt)
+        self.assertIn("cannot", txt)
+        # the small print belongs at the end, after the setup steps
+        self.assertGreater(txt.index("Small print"), txt.index("On your phone"))
+
+
+class TestLinkCap(unittest.TestCase):
+    def links(self, n, starred=()):
+        return [{"id": "L%d" % i, "saved": datetime.datetime(2026, 1, 1) +
+                 datetime.timedelta(days=i), "stars": 3 if i in starred else 0}
+                for i in range(n)]
+
+    def test_under_cap_deletes_nothing(self):
+        self.assertEqual(logic.links_over_cap(self.links(5), 5), [])
+        self.assertEqual(logic.links_over_cap([], 5), [])
+
+    def test_oldest_go_first(self):
+        self.assertEqual(logic.links_over_cap(self.links(8), 5),
+                         ["L0", "L1", "L2"])
+
+    def test_order_of_input_does_not_matter(self):
+        shuffled = list(reversed(self.links(8)))
+        self.assertEqual(sorted(logic.links_over_cap(shuffled, 5)),
+                         ["L0", "L1", "L2"])
+
+    def test_starred_links_are_spared(self):
+        # L0 and L1 are the oldest but starred, so L2..L4 go instead
+        self.assertEqual(logic.links_over_cap(self.links(8, starred=(0, 1)), 5),
+                         ["L2", "L3", "L4"])
+
+    def test_starred_only_as_a_last_resort(self):
+        got = logic.links_over_cap(self.links(8, starred=tuple(range(8))), 5)
+        self.assertEqual(got, ["L0", "L1", "L2"])
+
+    def test_default_cap_is_the_number_in_the_email(self):
+        self.assertEqual(logic.links_over_cap(self.links(logic.MAX_LINKS)), [])
+        self.assertEqual(len(logic.links_over_cap(self.links(logic.MAX_LINKS + 3))), 3)
+
     def test_sent_page(self):
         html = logic.sent_page_html()
         self.assertIn("Sent", html)

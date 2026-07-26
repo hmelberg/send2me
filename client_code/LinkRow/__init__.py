@@ -7,6 +7,8 @@ from .. import links_view
 
 STAR_ON = "#F5A623"
 STAR_OFF = "#D6DBE0"
+NOTE_ON = "#1976D2"
+NOTE_OFF = "#C2C9D0"
 
 
 class LinkRow(LinkRowTemplate):
@@ -24,7 +26,9 @@ class LinkRow(LinkRowTemplate):
         self.link_title.tooltip = item["url"]
         self.text_box_tags.text = item["tags"]
         self.text_box_note.text = item["note"]
+        self.note_open = False
         self._show_stars()
+        self._show_note_flag()
 
     def _show_stars(self):
         stars = links_view.stars_of(self.item)
@@ -65,6 +69,21 @@ class LinkRow(LinkRowTemplate):
         anvil.server.call('update_link', self.item["key"], self.item["id"],
                           note=note)
         self.item["note"] = note.strip()
+        self._show_note_flag()
+
+    def _show_note_flag(self):
+        """The icon is lit when there is a note to see, so a folded-away note
+        is still discoverable."""
+        has_note = bool((self.item["note"] or "").strip())
+        self.link_note_toggle.foreground = NOTE_ON if has_note else NOTE_OFF
+
+    def link_note_toggle_click(self, **event_args):
+        """Only shown on narrow screens, where the note is folded away to keep
+        each link down to two lines. The role swap is what reveals it."""
+        self.note_open = not self.note_open
+        self.text_box_note.role = "row-note-open" if self.note_open else "row-note"
+        if self.note_open:
+            self.text_box_note.focus()
 
     def text_box_note_pressed_enter(self, **event_args):
         self.text_box_note_lost_focus()

@@ -81,6 +81,23 @@ def make_bookmarklet(token):
             "links_url": logic.links_page_url(token)}
 
 
+def _enforce_cap(email):
+    """Holder brukeren under logic.MAX_LINKS, som e-posten lover. len() pa et
+    Anvil-sok er en billig telling, sa vanlige lagringer koster ingen henting."""
+    rows = app_tables.links.search(email=email)
+    if len(rows) <= logic.MAX_LINKS:
+        return 0
+    doomed = set(logic.links_over_cap(
+        [{"id": r.get_id(), "saved": r["saved"],
+          "stars": logic.link_stars(r["stars"], r["starred"])} for r in rows]))
+    n = 0
+    for r in app_tables.links.search(email=email):
+        if r.get_id() in doomed:
+            r.delete()
+            n += 1
+    return n
+
+
 @anvil.server.http_endpoint("/sendlink")
 def sendlink(**kwargs):
     params = anvil.server.request.query_params
@@ -99,6 +116,7 @@ def sendlink(**kwargs):
             saved=datetime.datetime.now(), fetched_at=None,
             tags=logic.normalize_tags(row["current_tag"]),
             note="", stars=0, starred=False)
+        _enforce_cap(row["email"])
     if mode != "save":
         anvil.email.send(
             from_name="send2me", to=row["email"],
@@ -117,13 +135,18 @@ def get_settings(token):
 
 
 @anvil.server.callable
-def save_settings(token, mode, current_tag):
+def save_settings(token, mode=None, current_tag=None):
+    """Bare feltene som sendes inn endres - modus bor i innstillings-modalen,
+    current tag i overskriften, og de lagrer seg hver for seg."""
     row = _subscriber(token)
     if row is None:
         return {"ok": False, "error": "Unknown key."}
-    row.update(mode=logic.normalize_mode(mode),
-               current_tag=logic.normalize_tags(current_tag))
-    return {"ok": True, "current_tag": row["current_tag"] or ""}
+    if mode is not None:
+        row["mode"] = logic.normalize_mode(mode)
+    if current_tag is not None:
+        row["current_tag"] = logic.normalize_tags(current_tag)
+    return {"ok": True, "mode": logic.normalize_mode(row["mode"]),
+            "current_tag": row["current_tag"] or ""}
 
 
 @anvil.server.callable

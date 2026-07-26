@@ -1,0 +1,53 @@
+components:
+- layout_properties: {}
+  name: label_email
+  properties: {role: settings-email, text: ''}
+  type: Label
+- components:
+  - layout_properties: {}
+    name: label_mode
+    properties: {role: settings-label, text: 'When I click the bookmark:'}
+    type: Label
+  - event_bindings: {change: mode_changed}
+    layout_properties: {}
+    name: drop_down_mode
+    properties: {}
+    type: DropDown
+  layout_properties: {}
+  name: mode_panel
+  properties: {role: settings-row}
+  type: FlowPanel
+- layout_properties: {}
+  name: label_bookmark_hint
+  properties: {role: settings-hint, text: 'On a new computer? Drag these to your bookmarks bar:'}
+  type: Label
+- components:
+  - components: []
+    layout_properties: {}
+    name: link_bookmarklet
+    properties: {role: bookmark, text: "✈️ send2me", tooltip: 'Saves the page you are on', url: ''}
+    type: Link
+  - components: []
+    layout_properties: {}
+    name: link_mylinks
+    properties: {role: bookmark, text: "🔑 my links", tooltip: 'Opens this page', url: ''}
+    type: Link
+  layout_properties: {}
+  name: bookmark_panel
+  properties: {role: settings-row}
+  type: FlowPanel
+- layout_properties: {}
+  name: label_status
+  properties: {role: settings-hint, text: '', visible: false}
+  type: Label
+- components: []
+  event_bindings: {click: link_delete_all_click}
+  layout_properties: {}
+  name: link_delete_all
+  properties: {icon: 'fa:trash', role: danger-action, text: Delete all my links,
+    tooltip: 'Permanently removes every saved link', url: ''}
+  type: Link
+container:
+  properties: {role: settings-modal}
+  type: LinearPanel
+is_package: true

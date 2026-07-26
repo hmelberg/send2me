@@ -28,19 +28,26 @@ Lenkelista er det eneste som står i fokus. Én lenke = én rad, med stjerner,
 dato, tittel, stikkord og notat i faste kolonner:
 
 - **Høyremeny i overskrifta:** current tag som en pille (🏷), Export CSV som
-  nedlastingsikon (⬇) og tannhjulet (⚙). Bak tannhjulet, skjult som standard:
-  e-post, sendemodus og Delete everything.
+  nedlastingsikon (⬇) og tannhjulet (⚙). Tannhjulet åpner en modal med e-post,
+  sendemodus, bookmarklet-lenkene og «Delete all my links» (egen linje, ikon,
+  bekreftelse).
 - **Sendemodus per bruker:** *Email me the link* / *Save to My links* /
   *Email and save* (default). Bookmarkleten er uendret uansett modus.
 - **Klebrig stikkord:** skriv i tag-pilla i overskrifta — alt som lagres
   merkes automatisk til taggen endres/tømmes. Lagringsklikket spør aldri om noe.
 - **Ingen «Save settings»-knapp:** både taggen og modusen lagrer seg selv
   (taggen når feltet forlates eller ved Enter, modusen når den endres).
+- **Ny maskin?** Bookmarklet-lenkene kan dras på nytt fra innstillings-modalen
+  — man trenger ikke lete opp registrerings-eposten.
+- **Mobil:** to linjer per lenke, og notatet er foldet bort bak et ikon som
+  lyser når det finnes et notat.
+- **Grenser:** maks 1000 lenker per bruker (eldste ryker først, stjernemerkede
+  spares), og e-posten sier fra om at tjenesten ikke gir garantier.
 - **Per lenke:** 0–3 stjerner (klikk stjerne *n* for den verdien, klikk den
   øverste igjen for å nullstille), stikkord og notat redigeres inline og
   autolagres. ✕ til høyre sletter (vises når musa er over rada).
-- **Filtrering** i verktøylinja: fritekstsøk i tittel, URL, stikkord og notat;
-  stikkord-nedtrekk; datointervall (i dag / 7 / 30 / 90 / 365 dager).
+- **Filtrering:** fritekstsøk i tittel, URL, stikkord og notat i verktøylinja,
+  og stikkordfilter som nedtrekk i TAGS-kolonneoverskriften. ✕ nullstiller.
 - **Sortering:** klikk kolonneoverskriftene ★, Date eller Title; klikk igjen
   for å snu retningen.
 
@@ -70,7 +77,7 @@ alias for `?stars=1`. Samme funksjon er server-callable for Uplink:
 - Ren logikk ligger i `server_code/logic.py` og `client_code/links_view.py`
   (kun stdlib) og testes lokalt: `python3 -m unittest discover -s tests -v`
 - Anvil-lim (server-callables + HTTP-endepunkt) i `server_code/api.py`,
-  UI i `client_code/RegisterForm/`, `LinksForm/` og `LinkRow/`.
+  UI i `client_code/RegisterForm/`, `LinksForm/`, `LinkRow/` og `SettingsForm/`.
 - Etter en skjemaendring (som `stars`-kolonna) må Anvil-editoren åpnes og
   pullen godtas med **«source code»**-skjemaet, ikke «default database schema».
 - Rate-grense: maks 3 registrerings-eposter per adresse per dag.

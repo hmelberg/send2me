@@ -14,16 +14,20 @@ FlowPanel som brekker, og kortet er begrenset til 56 rem selv på brede skjermer
 
 ## Hva v3 endrer
 
-1. **Innstillinger bak et tannhjul.** Overskriftsrada får en høyremeny:
-   current tag som en liten pille, et nedlastingsikon for Export CSV, og
-   tannhjulet. De to tingene man gjør ofte — bytte stikkord og hente ut CSV —
-   ligger dermed ett klikk unna, mens panelet bak tannhjulet (e-post,
-   sendemodus, Delete everything) er skjult som standard.
+1. **Innstillinger i en modal bak tannhjulet.** Overskriftsrada har bare
+   current tag som en pille, nedlastingsikon for Export CSV og tannhjulet.
+   Tannhjulet åpner en modal med e-post, sendemodus, bookmarklet-lenkene og
+   «Delete all my links» — det siste på egen linje, med søppelbøtte-ikon og
+   bekreftelsesdialog. Antall lenker er ikke lenger vist i overskrifta.
 2. **Én lenke = én rad.** Seks kolonner i CSS-grid: stjerner, dato, tittel,
    stikkord, notat, slett. Stikkord og notat redigeres inline på rada.
 3. **0–3 stjerner** i stedet for boolsk stjerne.
-4. **Verktøylinje** over lista: fritekstsøk (tittel, URL, stikkord, notat),
-   stikkord-nedtrekk, dato-nedtrekk, «Clear». Den er høyrestilt, i flukt med
+4. **Verktøylinje** over lista: bare fritekstsøk (tittel, URL, stikkord,
+   notat) og et ✕-ikon som nullstiller, og ✕ vises bare når et filter er
+   aktivt. Stikkordfilteret er flyttet ned i TAGS-kolonneoverskriften som et
+   nedtrekk — filteret hører hjemme i kolonna det filtrerer. Datointervallet
+   er fjernet; API-et har fortsatt `since`/`until` for presise uttrekk.
+   Linja er høyrestilt, i flukt med
    ikonene i overskrifta, og bevisst nedtonet — 13 px i Gray 600 mot lenkenes
    15 px, med lyse rammer og blek nedtrekkspil. Hver kontroll skjerpes til
    svart tekst og blå ramme når den får fokus, så den er tydelig i bruk og
@@ -36,10 +40,10 @@ FlowPanel som brekker, og kortet er begrenset til 56 rem selv på brede skjermer
 
 ```
 ┌────────────────────────────────────────────────────────────────────┐
-│  My links                     24 links   🏷 [helse    ]   ⬇    ⚙   │
-│               [ Search title, tags, notes… ] [Tag ▾] [Any time ▾] Clear │
+│  My links                                🏷 [helse    ]   ⬇    ⚙   │
+│                              [ Search title, tags, notes… ]     ✕  │
 │                                                                    │
-│   ★     Date        Title                 Tags        Note         │
+│   ★     Date        Title                [TAGS ▾]     Note         │
 │  ★★☆   07-24   Helseatlas 2026 ↗          helse       les kap 3  ✕ │
 │  ★☆☆   07-23   SSB tabell 07459 ↗         data, ssb              ✕ │
 │  ☆☆☆   07-21   Lancet: obesity trends ↗   helse       til møtet  ✕ │
@@ -49,15 +53,50 @@ FlowPanel som brekker, og kortet er begrenset til 56 rem selv på brede skjermer
 Tannhjulet folder ut over lista:
 
 ```
-│  My links                     24 links   🏷 [helse    ]   ⬇    ⚙   │
-│  ┌──────────────────────────────────────────────────────────────┐  │
-│  │ Signed in as hans.melberg@gmail.com                          │  │
-│  │ When I click the bookmark: [Email and save ▾]  [Delete all]  │  │
-│  └──────────────────────────────────────────────────────────────┘  │
+┌─ Settings ─────────────────────────────────┐
+│ hans.melberg@gmail.com                     │
+│ When I click the bookmark: [Email and save ▾] │
+│                                            │
+│ On a new computer? Drag these to your      │
+│ bookmarks bar:                             │
+│   [✈️ send2me]  [🔑 my links]              │
+│                                            │
+│ [🗑 Delete all my links]                   │
+└────────────────────────────────────────────┘
 ```
 
 Under 480 px legger overskrifta seg på to linjer: tittelen øverst, så
-antall, tag-pilla og ikonene.
+tag-pilla og ikonene.
+
+## Mobil
+
+Under 760 px blir hver lenke **to** linjer i stedet for tre, i et firekolonners
+grid: stjerner, tittel og ✕ på første linje, dato, stikkord og et notat-ikon på
+andre. Notatet er foldet bort bak ikonet — en lenke uten notat koster dermed
+ingen ekstra høyde — og ikonet lyser blått når det finnes et notat å se, så et
+skjult notat fortsatt er synlig som *at det finnes*. Trykk åpner feltet og
+setter markøren i det.
+
+Foldingen gjøres ved å bytte rolle på selve feltet (`row-note` →
+`row-note-open`) framfor Anvils `visible`, fordi `visible=False` skjuler
+komponenten men ikke grid-cella — cella ville blitt stående igjen og spist
+høyde. Notat-ikonet er en sjuende komponent i rada; på desktop skjules hele
+*cella* (`:nth-child(7) {display:none}`), ellers ville de seks kolonnene blitt
+dyttet ned på en ny grid-linje.
+
+Målt mot den kjørende appen på 390 px: rada gikk fra 134 px til 82 px og
+topptekst fra 232 px til 190 px, altså fra fire til sju lenker på første skjerm.
+
+## Oppbevaring
+
+E-posten lover to grenser, og en lovnad som ikke håndheves er verre enn ingen:
+`logic.MAX_LINKS` (1000) håndheves ved hver lagring i `_enforce_cap`. Eldste
+lenke ryker først, men **stjernemerkede lenker spares** så lenge det finnes
+ustjernede å ta — stjerna er brukerens «behold denne». `len()` på et
+Anvil-søk er en billig telling, så vanlige lagringer koster ingen full henting.
+
+Tre-måneders-regelen er foreløpig *bare* policy i e-postteksten («may be
+removed»); det finnes ingen planlagt jobb som sletter etter alder.
 
 Datoen vises som `MM-DD` for inneværende år og `YYYY-MM-DD` ellers, slik at
 kolonna holder seg smal uten å bli tvetydig.
@@ -86,13 +125,9 @@ Alle lenkene lastes én gang ved åpning. Filtrering og sortering skjer i
 klienten, så søk oppdaterer lista uten tur-retur til serveren.
 
 Den rene logikken legges i **`client_code/links_view.py`** — et klientmodul
-uten anvil-avhengigheter, med bare strengsammenlikninger og `datetime` for
-dato-avkortingen. Da kan den enhetstestes lokalt på samme måte som
-`server_code/logic.py`, i stedet for å være begravd i en skjemaklasse.
-
-Datoene som kommer fra serveren er allerede strenger på formen
-`YYYY-MM-DD HH:MM`, så filtrering er ren prefiksammenlikning:
-`link["saved"][:10] >= cutoff`.
+uten anvil-avhengigheter, med bare strengsammenlikninger. Da kan den
+enhetstestes lokalt på samme måte som `server_code/logic.py`, i stedet for å
+være begravd i en skjemaklasse.
 
 Modulens grensesnitt:
 
@@ -100,16 +135,10 @@ Modulens grensesnitt:
 |---|---|
 | `stars_of(link)` | 0–3, med `starred`-fallback |
 | `day_of(link)` | `YYYY-MM-DD` fra `saved` |
-| `cutoff(preset, today)` | `"7"`/`"today"`/`""` → `YYYY-MM-DD` eller `None` |
 | `all_tags(links)` | sorterte, unike stikkord til nedtrekket |
-| `filter_links(links, search, tag, since)` | filtrert liste |
+| `filter_links(links, search, tag)` | filtrert liste |
 | `sort_links(links, key, descending)` | `key` ∈ `saved`/`stars`/`title` |
 | `format_day(day, this_year)` | `MM-DD` eller `YYYY-MM-DD` |
-
-Datovalgene er ferdige intervaller (Any time, Today, Last 7 days, Last 30
-days, Last 3 months, Last 12 months) framfor to datovelgere. Det dekker det
-man faktisk spør om («hva lagret jeg denne uka?») på én kontroll i stedet for
-to, og API-et har fortsatt `since`/`until` for presise uttrekk.
 
 ## Server
 
@@ -121,6 +150,9 @@ to, og API-et har fortsatt `since`/`until` for presise uttrekk.
 
 `server_code/api.py`:
 - `_link_dict` tar med `stars`.
+- `save_settings(token, mode=None, current_tag=None)` oppdaterer bare feltene
+  som sendes inn, siden modus bor i modalen og current tag i overskrifta.
+- `_enforce_cap(email)` holder brukeren under `MAX_LINKS` ved hver lagring.
 - `update_link(token, link_id, tags=, note=, stars=)` — `starred`-parameteren
   erstattes av `stars`, og begge kolonnene skrives.
 - `sendlink` setter `stars=0` på nye rader.

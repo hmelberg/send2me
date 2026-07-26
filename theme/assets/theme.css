@@ -1046,6 +1046,21 @@ a.anvil-role-head-cell > .link-text {
 }
 a.anvil-role-head-cell:hover > .link-text { color: %color:Primary 700%; }
 
+.anvil-role-head-select select.form-control {
+  width: 100%;
+  height: auto;
+  margin-bottom: 0;
+  padding: 4px 1.2em 4px 0;
+  border-bottom: 0;
+  color: %color:Gray 600%;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.anvil-role-head-select select.form-control:hover { color: %color:Primary 700%; }
+.anvil-role-head-select form:before { color: #A7AFB6; line-height: 1.4em; }
+
 .anvil-role-link-row {
   display: block;
   padding: 3px 0;
@@ -1095,7 +1110,9 @@ a.anvil-role-row-title > .link-text {
   font-size: 15px;
 }
 
-input.anvil-component.anvil-role-row-input {
+input.anvil-component.anvil-role-row-input,
+input.anvil-component.anvil-role-row-note,
+input.anvil-component.anvil-role-row-note-open {
   width: 100%;
   margin-bottom: 0;
   padding: 4px 6px;
@@ -1103,16 +1120,28 @@ input.anvil-component.anvil-role-row-input {
   border-radius: 6px;
   font-size: 13px;
 }
-input.anvil-component.anvil-role-row-input:hover {
+input.anvil-component.anvil-role-row-input:hover,
+input.anvil-component.anvil-role-row-note:hover,
+input.anvil-component.anvil-role-row-note-open:hover {
   padding: 4px 6px;
   border: 1px solid #DDE3E9;
   background-color: white;
 }
-input.anvil-component.anvil-role-row-input:focus {
+input.anvil-component.anvil-role-row-input:focus,
+input.anvil-component.anvil-role-row-note:focus,
+input.anvil-component.anvil-role-row-note-open:focus {
   padding: 4px 6px;
   border: 1px solid %color:Primary 500%;
   background-color: white;
 }
+
+/* The note icon only earns its place on narrow screens; on desktop the whole
+   grid cell goes, or it would push the six columns onto a second line. */
+.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(7) {
+  display: none;
+}
+a.anvil-role-row-note-toggle > .link-text { padding: 0; }
+a.anvil-role-row-note-toggle { font-size: 14px; }
 
 a.anvil-role-row-delete {
   color: #C2C9D0 !important;
@@ -1135,23 +1164,44 @@ a.anvil-role-row-delete > .link-text { padding: 5px 0; }
   text-align: center;
 }
 
-/* Narrow screens: three lines per link, no column headers */
+/* Narrow screens: two lines per link. The note folds away behind its icon
+   so a link with no note costs no extra height. */
 @media (max-width: 760px) {
   .anvil-role-link-head { display: none; }
   .flow-panel.anvil-role-link-row > .flow-panel-gutter {
-    grid-template-columns: 62px minmax(0, 1fr) 22px;
-    row-gap: 2px;
+    grid-template-columns: 58px minmax(0, 1fr) 26px 22px;
+    column-gap: 8px;
+    row-gap: 1px;
   }
+  /* 1 stars, 2 date, 3 title, 4 tags, 5 note, 6 delete, 7 note icon */
   .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(1) { grid-area: 1 / 1; }
-  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(3) { grid-area: 1 / 2; }
-  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(6) { grid-area: 1 / 3; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(3) { grid-area: 1 / 2 / 2 / 4; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(6) { grid-area: 1 / 4; }
   .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(2) { grid-area: 2 / 1; }
-  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(4) { grid-area: 2 / 2 / 2 / 4; }
-  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(5) { grid-area: 3 / 1 / 3 / 4; }
-  .anvil-role-link-row { padding: 7px 0; }
-  /* the search box takes the whole first line; the dropdowns wrap under it */
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(4) { grid-area: 2 / 2; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(7) { grid-area: 2 / 3; display: block; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(5) { grid-area: 3 / 1 / 4 / 5; }
+
+  /* folded away until the note icon is tapped; the empty cell collapses */
+  input.anvil-component.anvil-role-row-note { display: none; }
+
+  .anvil-role-link-row { padding: 4px 0; }
+  a.anvil-role-row-title > .link-text { padding: 3px 0; font-size: 14px; }
+  .anvil-role-row-date > .label-text { padding: 3px 0; font-size: 12px; }
+  a.anvil-role-star > .link-text { padding: 3px 1px; }
+  a.anvil-role-star { font-size: 15px; }
+  input.anvil-component.anvil-role-row-input,
+  input.anvil-component.anvil-role-row-note,
+  input.anvil-component.anvil-role-row-note-open {
+    margin-top: 0;
+    padding: 2px 5px;
+    font-size: 12px;
+  }
+  a.anvil-role-row-delete > .link-text { padding: 3px 0; }
+
+  /* the search box takes the line, but leaves room for the clear icon beside it */
   .flow-panel.anvil-role-toolbar > .flow-panel-gutter > .flow-panel-item:first-child {
-    flex: 1 1 100%;
+    flex: 1 1 auto;
   }
   input.anvil-component.anvil-role-toolbar-search { width: 100%; }
   input.anvil-component.anvil-role-header-tag-input { width: 7rem; }
@@ -1172,3 +1222,36 @@ a.anvil-role-row-delete > .link-text { padding: 5px 0; }
     margin-right: auto;
   }
 }
+
+/* Settings modal */
+.anvil-role-settings-modal { padding: 0; }
+.anvil-role-settings-email > .label-text {
+  padding-bottom: 2px;
+}
+.flow-panel.anvil-role-settings-row > .flow-panel-gutter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.8rem;
+  margin: 0.2rem 0 0.6rem;
+}
+.flow-panel.anvil-role-settings-row > .flow-panel-gutter > .flow-panel-item { margin: 0; }
+.anvil-role-settings-hint > .label-text {
+  padding: 0.6rem 0 0.2rem;
+  color: %color:Gray 600%;
+  font-size: 13px;
+}
+a.anvil-role-danger-action {
+  display: inline-block;
+  margin-top: 0.9rem;
+  padding: 0.35em 0.9em;
+  border: 1px solid #F3C9C7;
+  border-radius: 8px;
+  color: #C62828 !important;
+  font-size: 14px;
+}
+a.anvil-role-danger-action:hover {
+  border-color: #E53935;
+  background-color: #FDEBEA;
+}
+a.anvil-role-danger-action > .link-text { padding: 0; }

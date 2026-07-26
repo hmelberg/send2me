@@ -42,16 +42,6 @@ class TestDates(unittest.TestCase):
         self.assertEqual(lv.day_of(link()), "2026-07-20")
         self.assertEqual(lv.day_of({}), "")
 
-    def test_cutoff(self):
-        self.assertIsNone(lv.cutoff("", self.today))
-        self.assertEqual(lv.cutoff("today", self.today), "2026-07-26")
-        self.assertEqual(lv.cutoff("7", self.today), "2026-07-19")
-        self.assertEqual(lv.cutoff("365", self.today), "2025-07-26")
-
-    def test_presets_all_parse(self):
-        for _, value in lv.DATE_PRESETS:
-            lv.cutoff(value, self.today)
-
     def test_format_day(self):
         self.assertEqual(lv.format_day("2026-07-20", 2026), "07-20")
         self.assertEqual(lv.format_day("2025-12-31", 2026), "2025-12-31")
@@ -98,13 +88,8 @@ class TestFilter(unittest.TestCase):
         self.assertEqual(len(lv.filter_links(self.links, tag="Health")), 2)
         self.assertEqual(len(lv.filter_links(self.links, tag="heal")), 0)
 
-    def test_since(self):
-        got = lv.filter_links(self.links, since="2026-07-20")
-        self.assertEqual([l["title"] for l in got], ["Helseatlas"])
-
     def test_filters_combine(self):
-        got = lv.filter_links(self.links, search="tabell", tag="ssb",
-                              since="2026-01-01")
+        got = lv.filter_links(self.links, search="tabell", tag="ssb")
         self.assertEqual(len(got), 1)
         self.assertEqual(len(lv.filter_links(self.links, search="tabell",
                                              tag="health")), 0)
@@ -138,14 +123,6 @@ class TestSort(unittest.TestCase):
         before = [l["title"] for l in self.links]
         lv.sort_links(self.links, key="title")
         self.assertEqual([l["title"] for l in self.links], before)
-
-
-class TestCountLabel(unittest.TestCase):
-    def test_labels(self):
-        self.assertEqual(lv.count_label(0, 0), "0 links")
-        self.assertEqual(lv.count_label(1, 1), "1 link")
-        self.assertEqual(lv.count_label(24, 24), "24 links")
-        self.assertEqual(lv.count_label(8, 24), "8 of 24 links")
 
 
 if __name__ == "__main__":

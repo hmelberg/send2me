@@ -233,3 +233,19 @@ roles:
   name: empty-state
 - components: [RepeatingPanel]
   name: link-list
+- components: [DropDown]
+  name: head-select
+- components: [TextBox]
+  name: row-note
+- components: [TextBox]
+  name: row-note-open
+- components: [Link]
+  name: row-note-toggle
+- components: [LinearPanel]
+  name: settings-modal
+- components: [FlowPanel]
+  name: settings-row
+- components: [Label]
+  name: settings-hint
+- components: [Link]
+  name: danger-action

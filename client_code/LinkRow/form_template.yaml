@@ -39,13 +39,20 @@ components:
 - event_bindings: {lost_focus: text_box_note_lost_focus, pressed_enter: text_box_note_pressed_enter}
   layout_properties: {}
   name: text_box_note
-  properties: {placeholder: note, role: row-input}
+  properties: {placeholder: note, role: row-note}
   type: TextBox
 - components: []
   event_bindings: {click: link_delete_click}
   layout_properties: {}
   name: link_delete
   properties: {role: row-delete, text: "✕", tooltip: Delete this link, url: ''}
+  type: Link
+- components: []
+  event_bindings: {click: link_note_toggle_click}
+  layout_properties: {}
+  name: link_note_toggle
+  properties: {icon: 'fa:comment-o', role: row-note-toggle, text: '',
+    tooltip: 'Show or hide the note', url: ''}
   type: Link
 container:
   properties: {role: link-row}

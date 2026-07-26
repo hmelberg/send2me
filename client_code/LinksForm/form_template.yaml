@@ -5,10 +5,6 @@ components:
       name: label_title
       properties: {role: headline, text: My links}
       type: Label
-    - layout_properties: {}
-      name: label_count
-      properties: {role: header-count, text: ''}
-      type: Label
     - components:
       - layout_properties: {}
         name: label_tag_icon
@@ -48,29 +44,6 @@ components:
     properties: {role: status-line, text: '', visible: false}
     type: Label
   - components:
-    - layout_properties: {}
-      name: label_email
-      properties: {role: settings-email, text: ''}
-      type: Label
-    - layout_properties: {}
-      name: label_mode
-      properties: {role: settings-label, text: 'When I click the bookmark:'}
-      type: Label
-    - event_bindings: {change: mode_changed}
-      layout_properties: {}
-      name: drop_down_mode
-      properties: {}
-      type: DropDown
-    - event_bindings: {click: button_delete_all_click}
-      layout_properties: {}
-      name: button_delete_all
-      properties: {text: Delete everything}
-      type: Button
-    layout_properties: {}
-    name: settings_panel
-    properties: {role: settings-panel, visible: false}
-    type: FlowPanel
-  - components:
     - event_bindings: {pressed_enter: text_box_key_pressed_enter}
       layout_properties: {}
       name: text_box_key
@@ -91,21 +64,12 @@ components:
       name: text_box_search
       properties: {placeholder: 'Search title, tags, notes ...', role: toolbar-search}
       type: TextBox
-    - event_bindings: {change: filter_changed}
-      layout_properties: {}
-      name: drop_down_tag
-      properties: {}
-      type: DropDown
-    - event_bindings: {change: filter_changed}
-      layout_properties: {}
-      name: drop_down_date
-      properties: {}
-      type: DropDown
     - components: []
       event_bindings: {click: link_clear_click}
       layout_properties: {}
       name: link_clear
-      properties: {role: toolbar-clear, text: Clear, url: ''}
+      properties: {icon: 'fa:times', role: toolbar-clear, text: '',
+        tooltip: 'Clear search and tag filter', url: '', visible: false}
       type: Link
     layout_properties: {}
     name: toolbar_panel
@@ -130,10 +94,11 @@ components:
       name: link_head_title
       properties: {role: head-cell, text: Title, tooltip: Sort by title, url: ''}
       type: Link
-    - layout_properties: {}
-      name: label_head_tags
-      properties: {role: head-cell, text: Tags}
-      type: Label
+    - event_bindings: {change: filter_changed}
+      layout_properties: {}
+      name: drop_down_tag
+      properties: {role: head-select}
+      type: DropDown
     - layout_properties: {}
       name: label_head_note
       properties: {role: head-cell, text: Note}

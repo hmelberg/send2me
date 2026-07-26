@@ -1,36 +1,53 @@
 components:
+- components:
+  - components: []
+    event_bindings: {click: link_star1_click}
+    layout_properties: {}
+    name: link_star1
+    properties: {role: star, text: "★", tooltip: 'One star', url: ''}
+    type: Link
+  - components: []
+    event_bindings: {click: link_star2_click}
+    layout_properties: {}
+    name: link_star2
+    properties: {role: star, text: "★", tooltip: 'Two stars', url: ''}
+    type: Link
+  - components: []
+    event_bindings: {click: link_star3_click}
+    layout_properties: {}
+    name: link_star3
+    properties: {role: star, text: "★", tooltip: 'Three stars', url: ''}
+    type: Link
+  layout_properties: {}
+  name: stars_panel
+  properties: {role: stars}
+  type: FlowPanel
 - layout_properties: {}
   name: label_date
-  properties: {foreground: 'theme:Gray 600', text: ''}
+  properties: {role: row-date, text: ''}
   type: Label
-- components: []
-  event_bindings: {click: link_star_click}
-  layout_properties: {}
-  name: link_star
-  properties: {bold: true, text: "☆", tooltip: Star this link, url: ''}
-  type: Link
 - components: []
   layout_properties: {}
   name: link_title
-  properties: {bold: true, text: '', url: ''}
+  properties: {role: row-title, text: '', url: ''}
   type: Link
-- event_bindings: {lost_focus: text_box_tags_lost_focus}
+- event_bindings: {lost_focus: text_box_tags_lost_focus, pressed_enter: text_box_tags_pressed_enter}
   layout_properties: {}
   name: text_box_tags
-  properties: {placeholder: tags, width: 150}
+  properties: {placeholder: tags, role: row-input}
   type: TextBox
-- event_bindings: {lost_focus: text_box_note_lost_focus}
+- event_bindings: {lost_focus: text_box_note_lost_focus, pressed_enter: text_box_note_pressed_enter}
   layout_properties: {}
   name: text_box_note
-  properties: {placeholder: note, width: 220}
+  properties: {placeholder: note, role: row-input}
   type: TextBox
 - components: []
   event_bindings: {click: link_delete_click}
   layout_properties: {}
   name: link_delete
-  properties: {foreground: 'theme:Gray 600', text: "✕", tooltip: Delete this link, url: ''}
+  properties: {role: row-delete, text: "✕", tooltip: Delete this link, url: ''}
   type: Link
 container:
-  properties: {}
+  properties: {role: link-row}
   type: FlowPanel
 is_package: true

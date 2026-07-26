@@ -27,6 +27,9 @@ db_schema:
     - admin_ui: {width: 80}
       name: starred
       type: bool
+    - admin_ui: {width: 80}
+      name: stars
+      type: number
     indexes: []
     server: full
     title: Links

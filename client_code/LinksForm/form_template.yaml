@@ -1,24 +1,34 @@
 components:
 - components:
-  - layout_properties: {}
-    name: label_title
-    properties: {align: center, role: headline, text: My links}
-    type: Label
+  - components:
+    - layout_properties: {}
+      name: label_title
+      properties: {role: headline, text: My links}
+      type: Label
+    - layout_properties: {}
+      name: label_count
+      properties: {role: header-count, text: ''}
+      type: Label
+    - components: []
+      event_bindings: {click: link_settings_click}
+      layout_properties: {}
+      name: link_settings
+      properties: {icon: 'fa:cog', role: header-icon, tooltip: Settings, url: '',
+        visible: false}
+      type: Link
+    layout_properties: {}
+    name: header_panel
+    properties: {role: page-header}
+    type: FlowPanel
   - layout_properties: {}
     name: label_status
-    properties: {align: center, foreground: 'theme:Gray 600', text: ''}
+    properties: {role: status-line, text: '', visible: false}
     type: Label
-  - event_bindings: {pressed_enter: text_box_key_pressed_enter}
-    layout_properties: {}
-    name: text_box_key
-    properties: {placeholder: 'paste your key from the email'}
-    type: TextBox
-  - event_bindings: {click: button_open_click}
-    layout_properties: {}
-    name: button_open
-    properties: {align: full, role: primary-color, text: Open my links}
-    type: Button
   - components:
+    - layout_properties: {}
+      name: label_email
+      properties: {role: settings-email, text: ''}
+      type: Label
     - layout_properties: {}
       name: drop_down_mode
       properties: {}
@@ -32,11 +42,6 @@ components:
       name: button_save_settings
       properties: {role: primary-color, text: Save settings}
       type: Button
-    layout_properties: {}
-    name: settings_panel
-    properties: {visible: false}
-    type: FlowPanel
-  - components:
     - event_bindings: {click: button_export_click}
       layout_properties: {}
       name: button_export
@@ -48,13 +53,93 @@ components:
       properties: {text: Delete everything}
       type: Button
     layout_properties: {}
-    name: actions_panel
-    properties: {visible: false}
+    name: settings_panel
+    properties: {role: settings-panel, visible: false}
+    type: FlowPanel
+  - components:
+    - event_bindings: {pressed_enter: text_box_key_pressed_enter}
+      layout_properties: {}
+      name: text_box_key
+      properties: {placeholder: 'paste your key from the email', width: 320}
+      type: TextBox
+    - event_bindings: {click: button_open_click}
+      layout_properties: {}
+      name: button_open
+      properties: {role: primary-color, text: Open my links}
+      type: Button
+    layout_properties: {}
+    name: login_panel
+    properties: {role: login-panel}
+    type: FlowPanel
+  - components:
+    - event_bindings: {change: filter_changed, pressed_enter: filter_changed}
+      layout_properties: {}
+      name: text_box_search
+      properties: {placeholder: 'Search title, tags, notes ...', role: toolbar-search}
+      type: TextBox
+    - event_bindings: {change: filter_changed}
+      layout_properties: {}
+      name: drop_down_tag
+      properties: {}
+      type: DropDown
+    - event_bindings: {change: filter_changed}
+      layout_properties: {}
+      name: drop_down_date
+      properties: {}
+      type: DropDown
+    - components: []
+      event_bindings: {click: link_clear_click}
+      layout_properties: {}
+      name: link_clear
+      properties: {role: toolbar-clear, text: Clear, url: ''}
+      type: Link
+    layout_properties: {}
+    name: toolbar_panel
+    properties: {role: toolbar, visible: false}
+    type: FlowPanel
+  - components:
+    - components: []
+      event_bindings: {click: sort_by_stars}
+      layout_properties: {}
+      name: link_head_stars
+      properties: {role: head-cell, text: "★", tooltip: Sort by stars, url: ''}
+      type: Link
+    - components: []
+      event_bindings: {click: sort_by_date}
+      layout_properties: {}
+      name: link_head_date
+      properties: {role: head-cell, text: Date, tooltip: Sort by date, url: ''}
+      type: Link
+    - components: []
+      event_bindings: {click: sort_by_title}
+      layout_properties: {}
+      name: link_head_title
+      properties: {role: head-cell, text: Title, tooltip: Sort by title, url: ''}
+      type: Link
+    - layout_properties: {}
+      name: label_head_tags
+      properties: {role: head-cell, text: Tags}
+      type: Label
+    - layout_properties: {}
+      name: label_head_note
+      properties: {role: head-cell, text: Note}
+      type: Label
+    - layout_properties: {}
+      name: label_head_end
+      properties: {role: head-cell, text: ''}
+      type: Label
+    layout_properties: {}
+    name: head_panel
+    properties: {role: link-head, visible: false}
     type: FlowPanel
   - layout_properties: {}
     name: repeating_panel_links
-    properties: {item_template: LinkRow}
+    properties: {item_template: LinkRow, role: link-list}
     type: RepeatingPanel
+  - layout_properties: {}
+    name: label_empty
+    properties: {role: empty-state, text: '', visible: false}
+    type: Label
   layout_properties: {slot: default}
   name: content_panel
   properties: {role: wide-card}

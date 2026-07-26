@@ -816,12 +816,13 @@ body, .structure {
   background-color: #F5F5F5;
 }
 
-/* Wider card for the My links archive page */
+/* ===== My links: wide card, one row per link ===== */
+
 .anvil-role-wide-card {
   display: block;
-  max-width: 56rem;
-  margin: 4vh auto 3rem;
-  padding: 2rem 2.2rem 2.4rem;
+  max-width: 1500px;
+  margin: 3vh auto 3rem;
+  padding: 1.6rem 2rem 2rem;
   border-radius: 14px;
   background-color: white;
   box-shadow: 0 12px 32px rgba(33, 150, 243, 0.12), 0 2px 8px rgba(0, 0, 0, 0.07);
@@ -829,7 +830,259 @@ body, .structure {
 
 @media (max-width: 640px) {
   .anvil-role-wide-card {
-    margin: 1rem 0.8rem 2rem;
-    padding: 1.4rem 1rem 1.8rem;
+    margin: 1rem 0.6rem 2rem;
+    padding: 1.2rem 0.9rem 1.6rem;
   }
+}
+
+/* The Material theme pads every top-level container (`.content > * > .anvil-container`
+   gets 16px 24px), which would inset the list from the card edges. These panels set
+   their own spacing on the gutter instead, so the columns get the full card width. */
+.anvil-container.anvil-role-page-header,
+.anvil-container.anvil-role-settings-panel,
+.anvil-container.anvil-role-login-panel,
+.anvil-container.anvil-role-toolbar,
+.anvil-container.anvil-role-link-head,
+.anvil-container.anvil-role-link-list {
+  padding: 0;
+}
+
+/* Header: title on the left, count and settings cog on the right */
+.flow-panel.anvil-role-page-header > .flow-panel-gutter {
+  display: flex;
+  align-items: baseline;
+  margin: 0.2rem 0 0;
+  border-bottom: 1px solid #E8ECF0;
+  padding-bottom: 0.5rem;
+}
+.flow-panel.anvil-role-page-header > .flow-panel-gutter > .flow-panel-item {
+  margin: 0 0 0 0.9rem;
+}
+.flow-panel.anvil-role-page-header > .flow-panel-gutter > .flow-panel-item:first-child {
+  margin-left: 0;
+  margin-right: auto;
+}
+.anvil-role-header-count > .label-text {
+  color: %color:Gray 600%;
+  font-size: 14px;
+  white-space: nowrap;
+}
+a.anvil-role-header-icon {
+  color: %color:Gray 600% !important;
+  font-size: 20px;
+  align-self: center;
+  border-radius: 50%;
+  padding: 0 2px;
+}
+a.anvil-role-header-icon:hover {
+  color: %color:Primary 700% !important;
+  background-color: #EAF4FE;
+}
+
+.anvil-role-status-line > .label-text {
+  color: %color:Primary 700%;
+  font-size: 14px;
+}
+
+/* Settings, folded away behind the cog */
+.flow-panel.anvil-role-settings-panel > .flow-panel-gutter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin: 0.8rem 0 0;
+  padding: 0.7rem 1rem 0.9rem;
+  border-radius: 10px;
+  background-color: #F4F7FA;
+}
+.flow-panel.anvil-role-settings-panel > .flow-panel-gutter > .flow-panel-item {
+  margin: 0;
+}
+.anvil-role-settings-email > .label-text {
+  color: %color:Gray 600%;
+  font-size: 14px;
+  flex-basis: 100%;
+}
+
+.flow-panel.anvil-role-login-panel > .flow-panel-gutter {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.8rem;
+  margin: 1.4rem 0 0.4rem;
+}
+.flow-panel.anvil-role-login-panel > .flow-panel-gutter > .flow-panel-item {
+  margin: 0;
+}
+
+/* Filter bar */
+.flow-panel.anvil-role-toolbar > .flow-panel-gutter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 1rem;
+  margin: 1rem 0 0.3rem;
+}
+.flow-panel.anvil-role-toolbar > .flow-panel-gutter > .flow-panel-item {
+  margin: 0;
+}
+input.anvil-component.anvil-role-toolbar-search {
+  width: 22rem;
+  max-width: 100%;
+  margin-bottom: 0;
+  padding: 7px 12px;
+  border: 1px solid #D7DEE5;
+  border-radius: 999px;
+  background-color: #FBFCFD;
+  font-size: 15px;
+}
+input.anvil-component.anvil-role-toolbar-search:hover,
+input.anvil-component.anvil-role-toolbar-search:focus {
+  border: 1px solid %color:Primary 500%;
+  padding: 7px 12px;
+  background-color: white;
+}
+.anvil-role-toolbar .anvil-dropdown select.form-control {
+  margin-bottom: 0;
+  border-bottom: 1px solid #D7DEE5;
+  color: %color:Gray 800%;
+  font-size: 15px;
+}
+a.anvil-role-toolbar-clear {
+  color: %color:Gray 600% !important;
+  font-size: 14px;
+}
+a.anvil-role-toolbar-clear:hover { color: %color:Primary 700% !important; }
+
+/* The six-column grid shared by the header row and every link row */
+.flow-panel.anvil-role-link-head > .flow-panel-gutter,
+.flow-panel.anvil-role-link-row > .flow-panel-gutter {
+  display: grid;
+  grid-template-columns: 62px 78px minmax(0, 2.2fr) 150px minmax(0, 1.8fr) 22px;
+  align-items: center;
+  column-gap: 14px;
+  margin: 0;
+}
+.flow-panel.anvil-role-link-head > .flow-panel-gutter > .flow-panel-item,
+.flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item {
+  margin: 0;
+  min-width: 0;
+}
+
+.anvil-role-link-head {
+  margin-top: 0.7rem;
+  border-bottom: 2px solid #E8ECF0;
+}
+.flow-panel.anvil-role-link-head > .flow-panel-gutter { padding-bottom: 2px; }
+.anvil-role-head-cell > .label-text,
+a.anvil-role-head-cell > .link-text {
+  padding: 4px 0;
+  color: %color:Gray 600%;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+a.anvil-role-head-cell:hover > .link-text { color: %color:Primary 700%; }
+
+.anvil-role-link-row {
+  display: block;
+  padding: 3px 0;
+  border-bottom: 1px solid #F0F3F6;
+}
+.anvil-role-link-row:hover { background-color: #F7FAFD; }
+
+.flow-panel.anvil-role-stars > .flow-panel-gutter {
+  display: flex;
+  margin: 0;
+}
+.flow-panel.anvil-role-stars > .flow-panel-gutter > .flow-panel-item { margin: 0; }
+/* The lit/unlit colour comes from the `foreground` property set in LinkRow,
+   so it beats these rules; hover has to shout to preview over it. */
+a.anvil-role-star {
+  color: #D6DBE0;
+  font-size: 17px;
+  line-height: 1;
+  text-decoration: none !important;
+}
+a.anvil-role-star:hover { color: #F5A623 !important; }
+a.anvil-role-star > .link-text { padding: 5px 1px; }
+
+.anvil-role-row-date > .label-text {
+  padding: 5px 0;
+  color: %color:Gray 600%;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+a.anvil-role-row-title {
+  display: block;
+  min-width: 0;
+}
+a.anvil-role-row-title > .link-text {
+  display: block;
+  padding: 5px 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 15px;
+}
+
+input.anvil-component.anvil-role-row-input {
+  width: 100%;
+  margin-bottom: 0;
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 13px;
+}
+input.anvil-component.anvil-role-row-input:hover {
+  padding: 4px 6px;
+  border: 1px solid #DDE3E9;
+  background-color: white;
+}
+input.anvil-component.anvil-role-row-input:focus {
+  padding: 4px 6px;
+  border: 1px solid %color:Primary 500%;
+  background-color: white;
+}
+
+a.anvil-role-row-delete {
+  color: #C2C9D0 !important;
+  opacity: 0;
+  transition: opacity 0.15s;
+  text-decoration: none !important;
+}
+.anvil-role-link-row:hover a.anvil-role-row-delete,
+a.anvil-role-row-delete:focus { opacity: 1; }
+a.anvil-role-row-delete:hover { color: #E53935 !important; }
+a.anvil-role-row-delete > .link-text { padding: 5px 0; }
+@media (hover: none) {
+  a.anvil-role-row-delete { opacity: 1; }
+}
+
+.anvil-role-empty-state > .label-text {
+  display: block;
+  padding: 2.5rem 0;
+  color: %color:Gray 600%;
+  text-align: center;
+}
+
+/* Narrow screens: three lines per link, no column headers */
+@media (max-width: 760px) {
+  .anvil-role-link-head { display: none; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter {
+    grid-template-columns: 62px minmax(0, 1fr) 22px;
+    row-gap: 2px;
+  }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(1) { grid-area: 1 / 1; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(3) { grid-area: 1 / 2; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(6) { grid-area: 1 / 3; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(2) { grid-area: 2 / 1; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(4) { grid-area: 2 / 2 / 2 / 4; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(5) { grid-area: 3 / 1 / 3 / 4; }
+  .anvil-role-link-row { padding: 7px 0; }
+  /* the search box takes the whole first line; the dropdowns wrap under it */
+  .flow-panel.anvil-role-toolbar > .flow-panel-gutter > .flow-panel-item:first-child {
+    flex: 1 1 100%;
+  }
+  input.anvil-component.anvil-role-toolbar-search { width: 100%; }
 }

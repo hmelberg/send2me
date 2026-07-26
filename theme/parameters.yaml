@@ -183,3 +183,45 @@ roles:
   name: wide-card
 - components: [Link]
   name: bookmark
+- components: [FlowPanel]
+  name: page-header
+- components: [Label]
+  name: header-count
+- components: [Link]
+  name: header-icon
+- components: [Label]
+  name: status-line
+- components: [FlowPanel]
+  name: settings-panel
+- components: [Label]
+  name: settings-email
+- components: [FlowPanel]
+  name: login-panel
+- components: [FlowPanel]
+  name: toolbar
+- components: [TextBox]
+  name: toolbar-search
+- components: [Link]
+  name: toolbar-clear
+- components: [FlowPanel]
+  name: link-head
+- components: [Label, Link]
+  name: head-cell
+- components: [FlowPanel]
+  name: link-row
+- components: [FlowPanel]
+  name: stars
+- components: [Link]
+  name: star
+- components: [Label]
+  name: row-date
+- components: [Link]
+  name: row-title
+- components: [TextBox]
+  name: row-input
+- components: [Link]
+  name: row-delete
+- components: [Label]
+  name: empty-state
+- components: [RepeatingPanel]
+  name: link-list

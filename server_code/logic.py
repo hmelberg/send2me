@@ -17,9 +17,27 @@ _BOOKMARKLET = (
 
 VALID_MODES = ("email", "save", "both")
 
+MAX_STARS = 3
+
 
 def normalize_mode(m):
     return m if m in VALID_MODES else "both"
+
+
+def clamp_stars(n):
+    try:
+        n = int(n)
+    except (TypeError, ValueError):
+        return 0
+    return max(0, min(MAX_STARS, n))
+
+
+def link_stars(stars, starred=False):
+    """Kolonneverdi -> 0-3. Rader lagret for stars-kolonna fantes har None,
+    og leser den gamle boolske starred som en stjerne."""
+    if stars is None:
+        return 1 if starred else 0
+    return clamp_stars(stars)
 
 
 def normalize_tags(s):
@@ -41,7 +59,7 @@ def parse_links_query(params):
     f = {"all": _flag(params.get("all")), "keep": _flag(params.get("keep")),
          "since": None, "until": None,
          "tag": (params.get("tag") or "").strip() or None,
-         "starred": _flag(params.get("starred"))}
+         "min_stars": 1 if _flag(params.get("starred")) else 0}
     for name in ("since", "until"):
         raw = str(params.get(name) or "").strip()
         if raw:
@@ -49,11 +67,17 @@ def parse_links_query(params):
                 f[name] = _dt.date(*[int(x) for x in raw.split("-")])
             except (ValueError, TypeError):
                 return None, "Invalid %s date, use YYYY-MM-DD." % name
+    raw_stars = str(params.get("stars") or "").strip()
+    if raw_stars:
+        try:
+            f["min_stars"] = clamp_stars(int(raw_stars))
+        except ValueError:
+            return None, "Invalid stars, use a number 0-%d." % MAX_STARS
     return f, None
 
 
 def link_matches(link, filters):
-    """link: dict med saved (datetime), fetched_at (datetime|None), tags, starred."""
+    """link: dict med saved (datetime), fetched_at (datetime|None), tags, stars."""
     if not filters["all"] and link.get("fetched_at") is not None:
         return False
     day = link["saved"].date()
@@ -61,7 +85,7 @@ def link_matches(link, filters):
         return False
     if filters["until"] and day > filters["until"]:
         return False
-    if filters["starred"] and not link.get("starred"):
+    if link_stars(link.get("stars"), link.get("starred")) < filters["min_stars"]:
         return False
     if filters["tag"]:
         tags = [t.strip().lower() for t in (link.get("tags") or "").split(",")]
@@ -75,12 +99,12 @@ def links_to_csv(links):
     import io
     out = io.StringIO()
     w = csv.writer(out)
-    w.writerow(["saved", "url", "title", "tags", "note", "starred", "fetched_at"])
+    w.writerow(["saved", "url", "title", "tags", "note", "stars", "fetched_at"])
     for l in links:
         w.writerow([
             l["saved"].isoformat(sep=" ", timespec="minutes") if l.get("saved") else "",
             l.get("url") or "", l.get("title") or "", l.get("tags") or "",
-            l.get("note") or "", "1" if l.get("starred") else "0",
+            l.get("note") or "", link_stars(l.get("stars"), l.get("starred")),
             l["fetched_at"].isoformat(sep=" ", timespec="minutes") if l.get("fetched_at") else "",
         ])
     return out.getvalue()

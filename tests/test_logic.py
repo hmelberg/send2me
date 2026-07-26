@@ -100,7 +100,7 @@ class TestParseQuery(unittest.TestCase):
         self.assertIsNone(f["since"])
         self.assertIsNone(f["until"])
         self.assertIsNone(f["tag"])
-        self.assertFalse(f["starred"])
+        self.assertEqual(f["min_stars"], 0)
 
     def test_flags_and_dates(self):
         f, err = logic.parse_links_query(
@@ -112,7 +112,19 @@ class TestParseQuery(unittest.TestCase):
         self.assertEqual(f["since"], datetime.date(2026, 7, 1))
         self.assertEqual(f["until"], datetime.date(2026, 7, 25))
         self.assertEqual(f["tag"], "health")
-        self.assertTrue(f["starred"])
+        self.assertEqual(f["min_stars"], 1)
+
+    def test_stars_overrides_starred_alias(self):
+        f, err = logic.parse_links_query({"stars": "3", "starred": "1"})
+        self.assertIsNone(err)
+        self.assertEqual(f["min_stars"], 3)
+        f, _ = logic.parse_links_query({"stars": "9"})
+        self.assertEqual(f["min_stars"], 3)
+
+    def test_bad_stars(self):
+        f, err = logic.parse_links_query({"stars": "mange"})
+        self.assertIsNone(f)
+        self.assertIn("stars", err)
 
     def test_bad_date(self):
         f, err = logic.parse_links_query({"since": "01.07.2026"})
@@ -120,10 +132,25 @@ class TestParseQuery(unittest.TestCase):
         self.assertIn("since", err)
 
 
+class TestStars(unittest.TestCase):
+    def test_clamp(self):
+        self.assertEqual(logic.clamp_stars(2), 2)
+        self.assertEqual(logic.clamp_stars(7), 3)
+        self.assertEqual(logic.clamp_stars(-1), 0)
+        self.assertEqual(logic.clamp_stars(None), 0)
+        self.assertEqual(logic.clamp_stars("tull"), 0)
+
+    def test_fallback_to_old_starred_column(self):
+        self.assertEqual(logic.link_stars(None, True), 1)
+        self.assertEqual(logic.link_stars(None, False), 0)
+        self.assertEqual(logic.link_stars(0, True), 0)
+        self.assertEqual(logic.link_stars(3, False), 3)
+
+
 class TestLinkMatches(unittest.TestCase):
     def link(self, **kw):
         base = {"saved": datetime.datetime(2026, 7, 20, 12, 0),
-                "fetched_at": None, "tags": "health, econ", "starred": False}
+                "fetched_at": None, "tags": "health, econ", "stars": 0}
         base.update(kw)
         return base
 
@@ -142,23 +169,39 @@ class TestLinkMatches(unittest.TestCase):
         self.assertTrue(logic.link_matches(self.link(), self.filters(since="2026-07-20")))
         self.assertFalse(logic.link_matches(self.link(), self.filters(until="2026-07-19")))
 
-    def test_tag_and_star(self):
+    def test_tag(self):
         self.assertTrue(logic.link_matches(self.link(), self.filters(tag="Health")))
         self.assertFalse(logic.link_matches(self.link(), self.filters(tag="sport")))
-        self.assertFalse(logic.link_matches(self.link(), self.filters(starred="1")))
-        self.assertTrue(logic.link_matches(self.link(starred=True), self.filters(starred="1")))
+
+    def test_min_stars(self):
+        self.assertFalse(logic.link_matches(self.link(), self.filters(stars="1")))
+        self.assertTrue(logic.link_matches(self.link(stars=2), self.filters(stars="1")))
+        self.assertFalse(logic.link_matches(self.link(stars=2), self.filters(stars="3")))
+        self.assertTrue(logic.link_matches(self.link(stars=3), self.filters(stars="3")))
+
+    def test_old_starred_row_counts_as_one_star(self):
+        old = self.link(stars=None, starred=True)
+        self.assertTrue(logic.link_matches(old, self.filters(starred="1")))
+        self.assertFalse(logic.link_matches(old, self.filters(stars="2")))
 
 
 class TestCsv(unittest.TestCase):
     def test_csv(self):
         rows = [{"saved": datetime.datetime(2026, 7, 20, 12, 5),
                  "url": "https://x.no/a", "title": 'Tittel, med "komma"',
-                 "tags": "health", "note": "", "starred": True, "fetched_at": None}]
+                 "tags": "health", "note": "", "stars": 2, "fetched_at": None}]
         text = logic.links_to_csv(rows)
         lines = text.strip().splitlines()
-        self.assertEqual(lines[0], "saved,url,title,tags,note,starred,fetched_at")
+        self.assertEqual(lines[0], "saved,url,title,tags,note,stars,fetched_at")
         self.assertIn("https://x.no/a", lines[1])
         self.assertIn('"Tittel, med ""komma"""', lines[1])
+        self.assertTrue(lines[1].endswith(",2,"))
+
+    def test_csv_old_row_without_stars_column(self):
+        rows = [{"saved": datetime.datetime(2026, 7, 20, 12, 5),
+                 "url": "https://x.no/a", "title": "T", "tags": "", "note": "",
+                 "stars": None, "starred": True, "fetched_at": None}]
+        self.assertTrue(logic.links_to_csv(rows).strip().endswith(",1,"))
 
 
 if __name__ == "__main__":

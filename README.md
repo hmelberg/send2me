@@ -24,12 +24,26 @@ Nøkkelen er også innloggingen: e-posten inneholder en personlig arkivlenke
 aldri til serveren). Dra den til bokmerkelinjen som «🔑 my links», eller lim
 inn nøkkelen manuelt på siden.
 
+Lenkelista er det eneste som står i fokus. Én lenke = én rad, med stjerner,
+dato, tittel, stikkord og notat i faste kolonner:
+
+- **Innstillinger bak tannhjulet** (⚙, til høyre for overskriften): e-post,
+  sendemodus, current tag, Export CSV og Delete everything. Skjult som standard.
 - **Sendemodus per bruker:** *Email me the link* / *Save to My links* /
   *Email and save* (default). Bookmarkleten er uendret uansett modus.
-- **Klebrig stikkord:** sett «current tag» på arkivsiden — alt som lagres
+- **Klebrig stikkord:** sett «current tag» i innstillingene — alt som lagres
   merkes automatisk til taggen endres/tømmes. Lagringsklikket spør aldri om noe.
-- **Per lenke:** stjerne (★), stikkord og notat redigeres inline (autolagres);
-  ✕ sletter. «Export CSV» og «Delete everything» finnes også.
+- **Per lenke:** 0–3 stjerner (klikk stjerne *n* for den verdien, klikk den
+  øverste igjen for å nullstille), stikkord og notat redigeres inline og
+  autolagres. ✕ til høyre sletter (vises når musa er over rada).
+- **Filtrering** i verktøylinja: fritekstsøk i tittel, URL, stikkord og notat;
+  stikkord-nedtrekk; datointervall (i dag / 7 / 30 / 90 / 365 dager).
+- **Sortering:** klikk kolonneoverskriftene ★, Date eller Title; klikk igjen
+  for å snu retningen.
+
+Filtrering og sortering skjer i nettleseren over lenkene som alt er lastet, så
+søket oppdaterer lista uten tur-retur til serveren. Den rene logikken ligger i
+`client_code/links_view.py` og testes lokalt som resten.
 
 ### API
 
@@ -38,21 +52,24 @@ curl "https://send2me.app/_/api/links?token=NØKKEL"            # uhentede; merk
 curl "https://send2me.app/_/api/links?token=NØKKEL&all=1"      # alt
 curl "https://send2me.app/_/api/links?token=NØKKEL&keep=1"     # ikke merk som hentet
 curl "https://send2me.app/_/api/links?token=NØKKEL&since=2026-07-01&until=2026-07-31"
-curl "https://send2me.app/_/api/links?token=NØKKEL&tag=helse&starred=1"
+curl "https://send2me.app/_/api/links?token=NØKKEL&tag=helse&stars=2"   # minst to stjerner
 ```
 
 Svar: `{"ok": true, "count": n, "links": [{url, title, saved, fetched_at,
-tags, note, starred}, ...]}`. Samme funksjon er server-callable for Uplink:
+tags, note, stars}, ...]}` der `stars` er 0–3. `?starred=1` er beholdt som
+alias for `?stars=1`. Samme funksjon er server-callable for Uplink:
 `anvil.server.call('get_links', NØKKEL, all=1)`.
 
 ## Utvikling
 
 - Repoet er git-synket med Anvil-appen: push til `master` → Anvil henter og
   deployer automatisk.
-- Ren logikk ligger i `server_code/logic.py` (kun stdlib) og testes lokalt:
-  `python3 -m unittest discover -s tests -v`
+- Ren logikk ligger i `server_code/logic.py` og `client_code/links_view.py`
+  (kun stdlib) og testes lokalt: `python3 -m unittest discover -s tests -v`
 - Anvil-lim (server-callables + HTTP-endepunkt) i `server_code/api.py`,
-  UI i `client_code/RegisterForm/`.
+  UI i `client_code/RegisterForm/`, `LinksForm/` og `LinkRow/`.
+- Etter en skjemaendring (som `stars`-kolonna) må Anvil-editoren åpnes og
+  pullen godtas med **«source code»**-skjemaet, ikke «default database schema».
 - Rate-grense: maks 3 registrerings-eposter per adresse per dag.
   Merk: Anvils gratisnivå har begrenset e-postkvote.
 

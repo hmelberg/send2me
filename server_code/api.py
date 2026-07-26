@@ -19,7 +19,7 @@ def _link_dict(row):
     return {"id": row.get_id(), "url": row["url"], "title": row["title"],
             "saved": row["saved"], "fetched_at": row["fetched_at"],
             "tags": row["tags"] or "", "note": row["note"] or "",
-            "starred": bool(row["starred"])}
+            "stars": logic.link_stars(row["stars"], row["starred"])}
 
 
 def _jsonable(d):
@@ -98,7 +98,7 @@ def sendlink(**kwargs):
             email=row["email"], url=url, title=title,
             saved=datetime.datetime.now(), fetched_at=None,
             tags=logic.normalize_tags(row["current_tag"]),
-            note="", starred=False)
+            note="", stars=0, starred=False)
     if mode != "save":
         anvil.email.send(
             from_name="send2me", to=row["email"],
@@ -147,7 +147,7 @@ def _own_link(token, link_id):
 
 
 @anvil.server.callable
-def update_link(token, link_id, tags=None, note=None, starred=None):
+def update_link(token, link_id, tags=None, note=None, stars=None):
     link = _own_link(token, link_id)
     if link is None:
         return {"ok": False, "error": "Not found."}
@@ -155,9 +155,11 @@ def update_link(token, link_id, tags=None, note=None, starred=None):
         link["tags"] = logic.normalize_tags(tags)
     if note is not None:
         link["note"] = (note or "").strip()
-    if starred is not None:
-        link["starred"] = bool(starred)
-    return {"ok": True, "tags": link["tags"] or ""}
+    if stars is not None:
+        n = logic.clamp_stars(stars)
+        link.update(stars=n, starred=n > 0)
+    return {"ok": True, "tags": link["tags"] or "",
+            "stars": logic.link_stars(link["stars"], link["starred"])}
 
 
 @anvil.server.callable

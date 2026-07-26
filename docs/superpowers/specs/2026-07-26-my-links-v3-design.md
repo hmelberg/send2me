@@ -87,6 +87,34 @@ dyttet ned på en ny grid-linje.
 Målt mot den kjørende appen på 390 px: rada gikk fra 134 px til 82 px og
 topptekst fra 232 px til 190 px, altså fra fire til sju lenker på første skjerm.
 
+## Hvor mange lenker tegnes opp
+
+Lista viser `links_view.PAGE_SIZE` (100) om gangen, med en bunnlinje
+«Showing 100 of 342 — Show more». Bunnlinja er helt skjult når alt får plass,
+så vanlige lister får ingen ekstra UI.
+
+Kuttet er **siste** steg: filtrering og sortering kjører over hele settet før
+lista skjæres til. Ellers ville søket bare lett i den delen du alt ser, som er
+den klassiske feilen med paginering. Et nytt filter nullstiller grensen til
+100; sortering beholder den, siden man da ser på det samme utvalget.
+
+Nummererte sider (1, 2, 3 …) ble valgt bort. Et lenkearkiv blas ikke
+sekvensielt — man søker, filtrerer på stikkord eller sorterer på stjerner, og
+da sier «side 3» ingenting om hva som er der. «Show more» har heller ingen
+tilstand å miste når filteret endres.
+
+Merk at dette begrenser *opptegning*, ikke *lasting*: `get_my_links` henter
+fortsatt alt i ett kall, og det er nettopp det som gjør at søket kan oppdatere
+seg mens man skriver.
+
+**Anvils DataGrid ble vurdert og valgt bort.** Den gir innebygd paginering,
+men kolonneoverskriftene er ren tekst — stikkordfilteret i TAGS-overskriften
+ville vært umulig. Den har heller ingen innebygd sortering, så de klikkbare
+overskriftene måtte uansett bygges selv, og radmalen må arve `DataRowPanel`
+med faste kolonner, som ville tvunget fram en ny mobilvisning. Radene er
+dessuten fortsatt Anvil-komponenter; DataGrid gjør ingen rad billigere, den
+tegner bare færre om gangen — akkurat det «Show more» gjør på tjue linjer.
+
 ## Oppbevaring
 
 E-posten lover to grenser, og en lovnad som ikke håndheves er verre enn ingen:

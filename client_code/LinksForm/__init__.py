@@ -21,6 +21,7 @@ class LinksForm(LinksFormTemplate):
         self.sort_key = "saved"
         self.sort_descending = True
         self.saved_tag = None
+        self.limit = links_view.PAGE_SIZE
         self.repeating_panel_links.set_event_handler(
             'x-link-deleted', self.link_deleted)
         self.repeating_panel_links.set_event_handler(
@@ -66,23 +67,37 @@ class LinksForm(LinksFormTemplate):
     # ---------- filtering, sorting, drawing ----------
 
     def _refresh(self):
+        """Filter and sort the whole set, then cut. Cutting last is what lets
+        a search reach links that are not on screen yet."""
         search = self.text_box_search.text or ""
         tag = self.drop_down_tag.selected_value or ""
-        shown = links_view.filter_links(self.links, search=search, tag=tag)
-        shown = links_view.sort_links(shown, self.sort_key, self.sort_descending)
+        matched = links_view.filter_links(self.links, search=search, tag=tag)
+        matched = links_view.sort_links(matched, self.sort_key,
+                                        self.sort_descending)
+        shown = matched[:self.limit]
         self.repeating_panel_links.items = shown
         self.link_clear.visible = bool(search or tag)
+        label = links_view.page_label(len(shown), len(matched))
+        self.label_shown.text = label
+        self.footer_panel.visible = bool(label)
         self.label_empty.visible = not shown
         self.label_empty.text = ("Nothing saved yet - click your send2me bookmark "
                                  "on any page." if not self.links
                                  else "No links match your filters.")
 
+    def link_more_click(self, **event_args):
+        self.limit += links_view.PAGE_SIZE
+        self._refresh()
+
     def filter_changed(self, **event_args):
+        # a new filter is a new question - start from the top again
+        self.limit = links_view.PAGE_SIZE
         self._refresh()
 
     def link_clear_click(self, **event_args):
         self.text_box_search.text = ""
         self.drop_down_tag.selected_value = ""
+        self.limit = links_view.PAGE_SIZE
         self._refresh()
 
     def _sort_by(self, key):

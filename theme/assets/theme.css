@@ -1235,6 +1235,33 @@ a.anvil-role-row-delete > .link-text { padding: 5px 0; }
   }
 }
 
+/* Footer under the list: how much is on screen, and a way to get more.
+   Hidden entirely when everything already fits, so short lists stay clean.
+   margin-right:auto rather than justify-content, because Anvil writes
+   justify-content inline on the gutter. */
+.flow-panel.anvil-role-list-footer > .flow-panel-gutter {
+  display: flex;
+  align-items: center;
+  margin: 0.5rem 0 0;
+  padding-top: 0.6rem;
+  border-top: 1px solid #F0F3F6;
+}
+.flow-panel.anvil-role-list-footer > .flow-panel-gutter > .flow-panel-item { margin: 0; }
+.flow-panel.anvil-role-list-footer > .flow-panel-gutter > .flow-panel-item:first-child {
+  margin-right: auto;
+}
+.anvil-role-footer-count > .label-text {
+  padding: 4px 0;
+  color: %color:Gray 600%;
+  font-size: 13px;
+}
+a.anvil-role-footer-more {
+  color: %color:Primary 700% !important;
+  font-size: 13px;
+}
+a.anvil-role-footer-more > .link-text { padding: 4px 0; }
+a.anvil-role-footer-more:hover { text-decoration: underline !important; }
+
 /* Settings modal */
 .anvil-role-settings-modal { padding: 0; }
 .anvil-role-settings-email > .label-text {

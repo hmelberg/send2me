@@ -115,6 +115,21 @@ components:
     name: repeating_panel_links
     properties: {item_template: LinkRow, role: link-list}
     type: RepeatingPanel
+  - components:
+    - layout_properties: {}
+      name: label_shown
+      properties: {role: footer-count, text: ''}
+      type: Label
+    - components: []
+      event_bindings: {click: link_more_click}
+      layout_properties: {}
+      name: link_more
+      properties: {role: footer-more, text: Show more, url: ''}
+      type: Link
+    layout_properties: {}
+    name: footer_panel
+    properties: {role: list-footer, visible: false}
+    type: FlowPanel
   - layout_properties: {}
     name: label_empty
     properties: {role: empty-state, text: '', visible: false}

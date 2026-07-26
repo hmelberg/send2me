@@ -4,6 +4,7 @@ Ren logikk uten anvil-avhengigheter, slik at den kan enhetstestes lokalt.
 Lenkene kommer fra serveren med `saved` som streng ("YYYY-MM-DD HH:MM").
 """
 MAX_STARS = 3
+PAGE_SIZE = 100
 
 SORT_KEYS = ("saved", "stars", "title")
 
@@ -76,3 +77,12 @@ def _sort_key(key):
 
 def sort_links(links, key="saved", descending=True):
     return sorted(links, key=_sort_key(key), reverse=bool(descending))
+
+
+def page_label(shown, total):
+    """Tom streng nar alt er pa skjermen, sa vanlige lister ikke far ekstra
+    UI de ikke trenger. Filtrering og sortering skjer over HELE settet for
+    dette kuttet - ellers ville soket bare lett i sida du ser pa."""
+    if shown >= total:
+        return ""
+    return "Showing %d of %d" % (shown, total)

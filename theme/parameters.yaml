@@ -249,3 +249,9 @@ roles:
   name: settings-hint
 - components: [Link]
   name: danger-action
+- components: [FlowPanel]
+  name: list-footer
+- components: [Label]
+  name: footer-count
+- components: [Link]
+  name: footer-more

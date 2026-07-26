@@ -50,6 +50,10 @@ dato, tittel, stikkord og notat i faste kolonner:
   og stikkordfilter som nedtrekk i TAGS-kolonneoverskriften. ✕ nullstiller.
 - **Sortering:** klikk kolonneoverskriftene ★, Date eller Title; klikk igjen
   for å snu retningen.
+- **Lange lister:** 100 lenker vises om gangen, med «Showing 100 of 342 —
+  Show more» nederst. Bunnlinja er skjult når alt får plass. Filtrering og
+  sortering skjer over hele settet før kuttet, så søket når også lenker som
+  ikke er tegnet opp ennå.
 
 Filtrering og sortering skjer i nettleseren over lenkene som alt er lastet, så
 søket oppdaterer lista uten tur-retur til serveren. Den rene logikken ligger i

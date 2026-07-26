@@ -125,5 +125,30 @@ class TestSort(unittest.TestCase):
         self.assertEqual([l["title"] for l in self.links], before)
 
 
+class TestPaging(unittest.TestCase):
+    def test_no_label_when_everything_fits(self):
+        self.assertEqual(lv.page_label(0, 0), "")
+        self.assertEqual(lv.page_label(12, 12), "")
+
+    def test_label_when_cut(self):
+        self.assertEqual(lv.page_label(100, 342), "Showing 100 of 342")
+
+    def test_never_claims_more_than_there_is(self):
+        self.assertEqual(lv.page_label(150, 100), "")
+
+    def test_page_size_is_the_documented_one(self):
+        self.assertEqual(lv.PAGE_SIZE, 100)
+
+    def test_slicing_happens_after_filter_and_sort(self):
+        # the point of the design: the cut is the last step, so a search
+        # reaches links that are not on screen yet
+        links = [link(title="T%03d" % i, saved="2026-07-%02d 09:00" % (i % 28 + 1),
+                      note="needle" if i == 250 else "") for i in range(300)]
+        hit = lv.sort_links(lv.filter_links(links, search="needle"))
+        self.assertEqual(len(hit), 1)
+        self.assertEqual(hit[0]["title"], "T250")
+        self.assertEqual(lv.page_label(len(hit[:lv.PAGE_SIZE]), len(hit)), "")
+
+
 if __name__ == "__main__":
     unittest.main()

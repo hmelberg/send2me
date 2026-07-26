@@ -163,6 +163,24 @@ normaliserte taggen, som skrives tilbake i feltet og bekreftes på statuslinja
   for `clamp_stars`/`link_stars`, CSV-headeren oppdateres.
 - Kjøres med `python3 -m unittest discover -s tests -v` fra repo-rota.
 
+## Anvil-CSS-feller funnet under arbeidet
+
+Verifisert mot den kjørende appen, ikke bare mot en mock:
+
+- **Anvil skriver `justify-content` som INLINE-stil på `.flow-panel-gutter`**,
+  ut fra FlowPanelens `align`-egenskap (default `left` → `flex-start`). En
+  vanlig regel i temaet blir stilltiende ignorert. Verktøylinja er derfor satt
+  til `align: right` *og* har `justify-content: flex-end !important` i CSS-en.
+  Målt live: uten den endte siste element på 427 px, med den på 1416 px = kortkanten.
+- **`.content > * > .anvil-container {padding: 16px 24px}`** (0,2,0) slår en
+  ren rolle-selektor (0,1,0). Kortets egen padding må derfor skrives
+  `.anvil-container.anvil-role-wide-card` for å vinne.
+- FlowPanel-DOM-en er `.flow-panel > .flow-panel-gutter > .flow-panel-item`,
+  der hvert item har inline `width: auto` og klassen
+  `anvil-always-inline-container`. LinearPanel rendres som `<ul><li>`.
+- Temaet animerer `border-bottom` i 0,2 s; måler man rett etter `.focus()`
+  leser man overgangsverdien, ikke sluttverdien.
+
 ## Utrulling
 
 Skjemaendringen (`stars`-kolonna) gjør at Anvil-editoren må åpnes og pull

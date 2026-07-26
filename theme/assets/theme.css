@@ -818,19 +818,24 @@ body, .structure {
 
 /* ===== My links: wide card, one row per link ===== */
 
-.anvil-role-wide-card {
+/* `.anvil-container` is in the selector to beat the theme's
+   `.content > * > .anvil-container {padding: 16px 24px}`, which is more
+   specific than a bare role and would otherwise set the card's padding. */
+.anvil-container.anvil-role-wide-card {
   display: block;
   max-width: 1500px;
+  width: calc(100% - 1.5rem);
   margin: 3vh auto 3rem;
-  padding: 1.6rem 2rem 2rem;
+  padding: 1.5rem 1.6rem 1.9rem;
   border-radius: 14px;
   background-color: white;
   box-shadow: 0 12px 32px rgba(33, 150, 243, 0.12), 0 2px 8px rgba(0, 0, 0, 0.07);
 }
 
 @media (max-width: 640px) {
-  .anvil-role-wide-card {
-    margin: 1rem 0.6rem 2rem;
+  .anvil-container.anvil-role-wide-card {
+    width: calc(100% - 1rem);
+    margin: 1rem auto 2rem;
     padding: 1.2rem 0.9rem 1.6rem;
   }
 }
@@ -958,7 +963,10 @@ input.anvil-component.anvil-role-header-tag-input:focus {
 .flow-panel.anvil-role-toolbar > .flow-panel-gutter {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  /* Anvil writes justify-content as an INLINE style on the gutter, from the
+     FlowPanel's `align` property - a plain rule here is silently ignored.
+     The panel is set to align: right as well; this makes it stick. */
+  justify-content: flex-end !important;
   align-items: center;
   gap: 0.4rem 1rem;
   margin: 1rem 0 0.3rem;

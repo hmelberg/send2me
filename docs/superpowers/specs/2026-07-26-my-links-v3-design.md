@@ -175,6 +175,14 @@ Verifisert mot den kjørende appen, ikke bare mot en mock:
 - **`.content > * > .anvil-container {padding: 16px 24px}`** (0,2,0) slår en
   ren rolle-selektor (0,1,0). Kortets egen padding må derfor skrives
   `.anvil-container.anvil-role-wide-card` for å vinne.
+- **En Anvil-`Link` rendres som en *container*** (`<a>` med klassene
+  `anvil-inlinable anvil-container column-panel`), og
+  `.anvil-always-inline-container > .anvil-inlinable {display:inline-block}`
+  (0,2,0) slår `a.anvil-role-x` (0,1,1). Lenka tar da bredden til teksten sin
+  og lange titler renner ut av kolonna i stedet for å kuttes. Tittelen må
+  skrives `.anvil-always-inline-container > a.anvil-role-row-title
+  {display:block; width:100%}`, og `.link-text` trenger `max-width:100%`
+  for at `text-overflow: ellipsis` skal slå inn.
 - FlowPanel-DOM-en er `.flow-panel > .flow-panel-gutter > .flow-panel-item`,
   der hvert item har inline `width: auto` og klassen
   `anvil-always-inline-container`. LinearPanel rendres som `<ul><li>`.

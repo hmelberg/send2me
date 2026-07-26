@@ -1076,12 +1076,18 @@ a.anvil-role-star > .link-text { padding: 5px 1px; }
   white-space: nowrap;
 }
 
-a.anvil-role-row-title {
+/* Anvil renders a Link as an inline-block container inside a FlowPanel
+   (`.anvil-always-inline-container > .anvil-inlinable`, specificity 0,2,0),
+   so it sizes to its text and a long title escapes its column instead of
+   being clipped. The item selector is needed to outrank that. */
+.anvil-always-inline-container > a.anvil-role-row-title {
   display: block;
+  width: 100%;
   min-width: 0;
 }
 a.anvil-role-row-title > .link-text {
   display: block;
+  max-width: 100%;
   padding: 5px 0;
   overflow: hidden;
   white-space: nowrap;

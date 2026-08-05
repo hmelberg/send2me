@@ -54,6 +54,15 @@ class TestBookmarklet(unittest.TestCase):
         self.assertIn("window.open", js)
         self.assertIn("location.href=u", js)  # popup-blokkering-fallback
 
+    def test_popup_shows_sending_before_the_server_answers(self):
+        js = logic.bookmarklet_js("TOKEN123")
+        self.assertIn("window.open(''", js)           # apnes tomt ...
+        self.assertIn("document.write('Sending", js)  # ... med placeholder ...
+        self.assertIn("w.location=u", js)             # ... og navigeres sa
+        # gjenbrukt vindu fra forrige sending star pa et annet origin, og da
+        # kaster document.write - navigasjonen skal skje uansett
+        self.assertIn("try{", js)
+
 
 class TestTexts(unittest.TestCase):
     def test_email_text(self):
@@ -112,6 +121,11 @@ class TestLinkCap(unittest.TestCase):
         self.assertIn("window.close", html)
         self.assertIn("history.back", html)
         self.assertIn("Saved", logic.sent_page_html("Saved"))
+
+    def test_sent_page_closes_fast(self):
+        # nedtellingen starter forst etter at serveren har svart, sa et lavt
+        # tall kan ikke miste lenker - 300 ms er nok til a se haken
+        self.assertIn("}},300)", logic.sent_page_html())
 
     def test_error_page(self):
         self.assertIn("Unknown", logic.error_page_html("Unknown key"))
@@ -226,6 +240,22 @@ class TestLinkMatches(unittest.TestCase):
         old = self.link(stars=None, starred=True)
         self.assertTrue(logic.link_matches(old, self.filters(starred="1")))
         self.assertFalse(logic.link_matches(old, self.filters(stars="2")))
+
+
+class TestLinksByIds(unittest.TestCase):
+    links = [{"id": "a"}, {"id": "b"}, {"id": "c"}]
+
+    def test_subset_keeps_saved_order(self):
+        self.assertEqual(logic.links_by_ids(self.links, ["c", "a"]),
+                         [{"id": "a"}, {"id": "c"}])
+
+    def test_no_selection_means_everything(self):
+        self.assertEqual(logic.links_by_ids(self.links, None), self.links)
+        self.assertEqual(logic.links_by_ids(self.links, []), self.links)
+
+    def test_unknown_ids_are_ignored(self):
+        self.assertEqual(logic.links_by_ids(self.links, ["b", "ukjent"]),
+                         [{"id": "b"}])
 
 
 class TestCsv(unittest.TestCase):

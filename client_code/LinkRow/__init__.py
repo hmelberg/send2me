@@ -26,6 +26,7 @@ class LinkRow(LinkRowTemplate):
         self.link_title.tooltip = item["url"]
         self.text_box_tags.text = item["tags"]
         self.text_box_note.text = item["note"]
+        self.check_box_select.checked = bool(item.get("selected"))
         self.note_open = False
         self._show_stars()
         self._show_note_flag()
@@ -87,6 +88,11 @@ class LinkRow(LinkRowTemplate):
 
     def text_box_note_pressed_enter(self, **event_args):
         self.text_box_note_lost_focus()
+
+    def check_box_select_change(self, **event_args):
+        self.item["selected"] = self.check_box_select.checked
+        self.parent.raise_event('x-selected-changed', link=self.item,
+                                selected=self.check_box_select.checked)
 
     def link_delete_click(self, **event_args):
         anvil.server.call('delete_link', self.item["key"], self.item["id"])

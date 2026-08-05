@@ -1016,11 +1016,29 @@ a.anvil-role-toolbar-clear {
 }
 a.anvil-role-toolbar-clear:hover { color: %color:Primary 700% !important; }
 
-/* The six-column grid shared by the header row and every link row */
+/* "23 selected x" - the selection's only permanent trace, since marked rows
+   can be filtered out of sight. Clicking it clears the whole selection. */
+a.anvil-role-toolbar-selected {
+  padding: 2px 10px;
+  border: 1px solid #D2DAE1;
+  border-radius: 999px;
+  background-color: #F4F7FA;
+  color: %color:Gray 600% !important;
+  font-size: 13px;
+  white-space: nowrap;
+}
+a.anvil-role-toolbar-selected:hover {
+  border-color: %color:Primary 500%;
+  color: %color:Primary 700% !important;
+}
+a.anvil-role-toolbar-selected > .link-text { padding: 0; }
+
+/* The seven-column grid shared by the header row and every link row.
+   The first column is the selection checkbox for export. */
 .flow-panel.anvil-role-link-head > .flow-panel-gutter,
 .flow-panel.anvil-role-link-row > .flow-panel-gutter {
   display: grid;
-  grid-template-columns: 62px 78px minmax(0, 2.2fr) 150px minmax(0, 1.8fr) 22px;
+  grid-template-columns: 18px 62px 78px minmax(0, 2.2fr) 150px minmax(0, 1.8fr) 22px;
   align-items: center;
   column-gap: 14px;
   margin: 0;
@@ -1148,9 +1166,30 @@ input.anvil-component.anvil-role-row-note-open:focus {
 }
 
 /* The note icon only earns its place on narrow screens; on desktop the whole
-   grid cell goes, or it would push the six columns onto a second line. */
-.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(7) {
+   grid cell goes, or it would push the seven columns onto a second line. */
+.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(8) {
   display: none;
+}
+
+/* Selection checkboxes, in rows and in the header. Bootstrap's .checkbox
+   wrapper brings its own margins and label padding; strip them so the box
+   sits alone in its 18px grid cell. Grey until checked - it must not
+   compete with the stars. */
+div.anvil-role-row-check.checkbox {
+  margin: 0;
+  min-height: 0;
+}
+.anvil-role-row-check label {
+  padding: 0;
+  min-height: 16px;
+}
+.anvil-role-row-check input {
+  position: static;
+  margin: 0;
+  width: 14px;
+  height: 14px;
+  accent-color: %color:Gray 600%;
+  cursor: pointer;
 }
 a.anvil-role-row-note-toggle > .link-text { padding: 0; }
 a.anvil-role-row-note-toggle { font-size: 14px; }
@@ -1181,18 +1220,20 @@ a.anvil-role-row-delete > .link-text { padding: 5px 0; }
 @media (max-width: 760px) {
   .anvil-role-link-head { display: none; }
   .flow-panel.anvil-role-link-row > .flow-panel-gutter {
-    grid-template-columns: 58px minmax(0, 1fr) 26px 22px;
+    grid-template-columns: 20px 58px minmax(0, 1fr) 26px 22px;
     column-gap: 8px;
     row-gap: 1px;
   }
-  /* 1 stars, 2 date, 3 title, 4 tags, 5 note, 6 delete, 7 note icon */
+  /* 1 check, 2 stars, 3 date, 4 title, 5 tags, 6 note, 7 delete, 8 note icon.
+     The checkbox shares the first line; the date tucks in under the stars. */
   .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(1) { grid-area: 1 / 1; }
-  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(3) { grid-area: 1 / 2 / 2 / 4; }
-  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(6) { grid-area: 1 / 4; }
-  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(2) { grid-area: 2 / 1; }
-  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(4) { grid-area: 2 / 2; }
-  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(7) { grid-area: 2 / 3; display: block; }
-  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(5) { grid-area: 3 / 1 / 4 / 5; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(2) { grid-area: 1 / 2; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(4) { grid-area: 1 / 3 / 2 / 5; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(7) { grid-area: 1 / 5; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(3) { grid-area: 2 / 2; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(5) { grid-area: 2 / 3; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(8) { grid-area: 2 / 4; display: block; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(6) { grid-area: 3 / 1 / 4 / 6; }
 
   /* folded away until the note icon is tapped; the empty cell collapses */
   input.anvil-component.anvil-role-row-note { display: none; }

@@ -10,7 +10,9 @@ Live på **https://send2me.app/**
    innboksen — og nøkkelen kan bare sende lenker til sin egen eier.)
 2. Lim inn nøkkelen på siden og dra den genererte «send2me»-lenken til bokmerkelinjen.
 3. Stå på en hvilken som helst side og klikk på bokmerket: den fullstendige URL-en
-   sendes til deg. Et lite «✓ Sendt»-vindu lukker seg selv etter ett sekund.
+   sendes til deg. Et lite vindu viser «Sending...» mens serveren jobber, og
+   lukker seg selv straks «✓ Sendt» har blinket (300 ms — nedtellingen starter
+   først etter at serveren har svart, så lenken er alltid trygt framme).
 
 Bookmarkleten åpner et vindu mot `GET /_/api/sendlink` i stedet for å bruke
 `fetch` — dermed stopper ikke nettsiders CSP den, og URL-en sendes eksplisitt
@@ -48,6 +50,11 @@ dato, tittel, stikkord og notat i faste kolonner:
   autolagres. ✕ til høyre sletter (vises når musa er over rada).
 - **Filtrering:** fritekstsøk i tittel, URL, stikkord og notat i verktøylinja,
   og stikkordfilter som nedtrekk i TAGS-kolonneoverskriften. ✕ nullstiller.
+- **Merk og eksporter:** checkbox per rad, og merk-alle i kolonneoverskriften
+  som tar *hele* det filtrerte settet (ikke bare radene på skjermen). Utvalget
+  overlever filterbytter, så det kan samles opp filter for filter; pilla
+  «23 selected ✕» i verktøylinja viser det og nullstiller. ⬇ eksporterer bare
+  de merkede når noe er merket, ellers alt som før.
 - **Sortering:** klikk kolonneoverskriftene ★, Date eller Title; klikk igjen
   for å snu retningen.
 - **Lange lister:** 100 lenker vises om gangen, med «Showing 100 of 342 —

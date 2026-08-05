@@ -1,4 +1,9 @@
 components:
+- event_bindings: {change: check_box_select_change}
+  layout_properties: {}
+  name: check_box_select
+  properties: {role: row-check, text: '', tooltip: 'Select for export'}
+  type: CheckBox
 - components:
   - components: []
     event_bindings: {click: link_star1_click}

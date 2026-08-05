@@ -59,6 +59,13 @@ components:
     properties: {role: login-panel}
     type: FlowPanel
   - components:
+    - components: []
+      event_bindings: {click: link_selected_click}
+      layout_properties: {}
+      name: link_selected
+      properties: {role: toolbar-selected, text: '', tooltip: 'Clear selection',
+        url: '', visible: false}
+      type: Link
     - event_bindings: {change: filter_changed, pressed_enter: filter_changed}
       layout_properties: {}
       name: text_box_search
@@ -76,6 +83,12 @@ components:
     properties: {align: right, role: toolbar, visible: false}
     type: FlowPanel
   - components:
+    - event_bindings: {change: select_all_changed}
+      layout_properties: {}
+      name: check_box_all
+      properties: {role: row-check, text: '',
+        tooltip: 'Select or clear every link that matches the filter'}
+      type: CheckBox
     - components: []
       event_bindings: {click: sort_by_stars}
       layout_properties: {}

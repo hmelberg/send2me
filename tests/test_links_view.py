@@ -125,6 +125,37 @@ class TestSort(unittest.TestCase):
         self.assertEqual([l["title"] for l in self.links], before)
 
 
+class TestSelection(unittest.TestCase):
+    def test_select_all_adds_the_matched(self):
+        self.assertEqual(lv.toggle_select_all(set(), ["a", "b"]), {"a", "b"})
+
+    def test_accumulates_across_filters(self):
+        # filter A -> merk alle -> filter B -> merk alle: unionen
+        self.assertEqual(lv.toggle_select_all({"a", "b"}, ["c"]),
+                         {"a", "b", "c"})
+
+    def test_second_click_removes_exactly_the_matched(self):
+        # utvalg fra andre filtre skal overleve en av-merking
+        self.assertEqual(lv.toggle_select_all({"x", "a", "b"}, ["a", "b"]),
+                         {"x"})
+
+    def test_empty_match_changes_nothing(self):
+        self.assertEqual(lv.toggle_select_all({"x"}, []), {"x"})
+
+    def test_all_selected(self):
+        self.assertTrue(lv.all_selected({"a", "b", "x"}, ["a", "b"]))
+        self.assertFalse(lv.all_selected({"a"}, ["a", "b"]))
+        self.assertFalse(lv.all_selected(set(), []))
+
+    def test_prune_selection_drops_deleted_links(self):
+        links = [link(id="a"), link(id="b")]
+        self.assertEqual(lv.prune_selection({"a", "borte"}, links), {"a"})
+
+    def test_selection_label(self):
+        self.assertEqual(lv.selection_label(0), "")
+        self.assertEqual(lv.selection_label(3), "3 selected")
+
+
 class TestPaging(unittest.TestCase):
     def test_no_label_when_everything_fits(self):
         self.assertEqual(lv.page_label(0, 0), "")

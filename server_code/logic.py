@@ -14,9 +14,10 @@ _BOOKMARKLET = (
     "javascript:(function(){var u='%s/sendlink?token=%s"
     "&url='+encodeURIComponent(location.href)+"
     "'&title='+encodeURIComponent(document.title);"
-    "var w=window.open(u,'send2me','width=220,height=90,"
+    "var w=window.open('','send2me','width=220,height=90,"
     "left='+(screen.width-250)+',top='+(screen.height-200));"
-    "if(!w){location.href=u;}})()"
+    "if(w){try{w.document.write('Sending...');}catch(e){}"
+    "w.location=u;}else{location.href=u;}})()"
 )
 
 
@@ -113,6 +114,15 @@ def links_over_cap(links, max_links=MAX_LINKS):
     return [links[i]["id"] for i in order[:surplus]]
 
 
+def links_by_ids(links, ids=None):
+    """Tomt/manglende utvalg betyr alle - eksporten uten merkede lenker skal
+    virke som for. Eierskapet er alt avgrenset: lista er brukerens egne."""
+    if not ids:
+        return list(links)
+    wanted = set(ids)
+    return [l for l in links if l.get("id") in wanted]
+
+
 def links_to_csv(links):
     import csv
     import io
@@ -197,7 +207,7 @@ def sent_page_html(label="Sent"):
         "padding-top:1.6em;background:#fafafa'>"
         "<div style='font-size:1.5em'>&#10003; " + label + "</div>"
         "<script>setTimeout(function(){window.close();"
-        "if(history.length>1){history.back();}},900);</script>"
+        "if(history.length>1){history.back();}},300);</script>"
         "</body></html>"
     )
 

@@ -79,6 +79,30 @@ def sort_links(links, key="saved", descending=True):
     return sorted(links, key=_sort_key(key), reverse=bool(descending))
 
 
+def toggle_select_all(selected_ids, matched_ids):
+    """Merk-alle-avkryssingen i kolonneoverskriften: legg alle treff til
+    utvalget, eller fjern akkurat dem nar alle alt er merket. Utvalg fra
+    andre filtre bevares - slik samler man opp et eksportutvalg filter for
+    filter."""
+    selected, matched = set(selected_ids), set(matched_ids)
+    if matched and matched <= selected:
+        return selected - matched
+    return selected | matched
+
+
+def all_selected(selected_ids, matched_ids):
+    matched = set(matched_ids)
+    return bool(matched) and matched <= set(selected_ids)
+
+
+def prune_selection(selected_ids, links):
+    return set(selected_ids) & {l.get("id") for l in links}
+
+
+def selection_label(n):
+    return "%d selected" % n if n else ""
+
+
 def page_label(shown, total):
     """Tom streng nar alt er pa skjermen, sa vanlige lister ikke far ekstra
     UI de ikke trenger. Filtrering og sortering skjer over HELE settet for

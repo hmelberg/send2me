@@ -22,10 +22,14 @@ class LinksForm(LinksFormTemplate):
         self.sort_descending = True
         self.saved_tag = None
         self.limit = links_view.PAGE_SIZE
+        self.selected_ids = set()
+        self._matched_ids = []
         self.repeating_panel_links.set_event_handler(
             'x-link-deleted', self.link_deleted)
         self.repeating_panel_links.set_event_handler(
             'x-tags-changed', self.tags_changed)
+        self.repeating_panel_links.set_event_handler(
+            'x-selected-changed', self.link_selected_changed)
         self._show_sort_arrow()
         if self.key:
             self.load()
@@ -53,6 +57,8 @@ class LinksForm(LinksFormTemplate):
         self.links = result["links"]
         for link in self.links:
             link["key"] = self.key
+        self.selected_ids = links_view.prune_selection(self.selected_ids,
+                                                       self.links)
         self._fill_tag_options()
         self._refresh()
 
@@ -74,8 +80,12 @@ class LinksForm(LinksFormTemplate):
         matched = links_view.filter_links(self.links, search=search, tag=tag)
         matched = links_view.sort_links(matched, self.sort_key,
                                         self.sort_descending)
+        self._matched_ids = [l["id"] for l in matched]
         shown = matched[:self.limit]
+        for link in shown:
+            link["selected"] = link["id"] in self.selected_ids
         self.repeating_panel_links.items = shown
+        self._show_selection()
         self.link_clear.visible = bool(search or tag)
         label = links_view.page_label(len(shown), len(matched))
         self.label_shown.text = label
@@ -84,6 +94,38 @@ class LinksForm(LinksFormTemplate):
         self.label_empty.text = ("Nothing saved yet - click your send2me bookmark "
                                  "on any page." if not self.links
                                  else "No links match your filters.")
+
+    # ---------- selection ----------
+
+    def _show_selection(self):
+        """The pill in the toolbar is the selection's only permanent trace -
+        marked rows can be scrolled away or filtered out of sight."""
+        n = len(self.selected_ids)
+        self.check_box_all.checked = links_view.all_selected(
+            self.selected_ids, self._matched_ids)
+        self.link_selected.text = (links_view.selection_label(n) + " ✕") if n else ""
+        self.link_selected.visible = bool(n)
+        self.link_export.tooltip = ("Export %d selected as CSV" % n if n
+                                    else "Export CSV")
+
+    def select_all_changed(self, **event_args):
+        """Acts on every matched link, not just the drawn page, and only on
+        the matched ones - picks made under other filters survive, so a
+        selection can be built up filter by filter."""
+        self.selected_ids = links_view.toggle_select_all(
+            self.selected_ids, self._matched_ids)
+        self._refresh()
+
+    def link_selected_changed(self, link, selected, **event_args):
+        if selected:
+            self.selected_ids.add(link["id"])
+        else:
+            self.selected_ids.discard(link["id"])
+        self._show_selection()
+
+    def link_selected_click(self, **event_args):
+        self.selected_ids = set()
+        self._refresh()
 
     def link_more_click(self, **event_args):
         self.limit += links_view.PAGE_SIZE
@@ -129,6 +171,7 @@ class LinksForm(LinksFormTemplate):
 
     def link_deleted(self, link, **event_args):
         self.links = [l for l in self.links if l["id"] != link["id"]]
+        self.selected_ids.discard(link["id"])
         self._fill_tag_options()
         self._refresh()
 
@@ -150,6 +193,7 @@ class LinksForm(LinksFormTemplate):
         alert(form, title="Settings", buttons=[("Close", None)])
         if form.deleted_all:
             self.links = []
+            self.selected_ids = set()
             self._fill_tag_options()
             self._refresh()
 
@@ -166,7 +210,8 @@ class LinksForm(LinksFormTemplate):
         self._status("Saving new links as: " + (result["current_tag"] or "no tag"))
 
     def link_export_click(self, **event_args):
-        media = anvil.server.call('export_csv', self.key)
+        ids = sorted(self.selected_ids) if self.selected_ids else None
+        media = anvil.server.call('export_csv', self.key, ids=ids)
         if media:
             anvil.media.download(media)
 

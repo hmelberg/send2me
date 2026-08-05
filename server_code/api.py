@@ -207,13 +207,14 @@ def delete_all_links(token):
 
 
 @anvil.server.callable
-def export_csv(token):
+def export_csv(token, ids=None):
     row = _subscriber(token)
     if row is None:
         return None
     rows = app_tables.links.search(tables.order_by("saved", ascending=False),
                                    email=row["email"])
-    csv_text = logic.links_to_csv([_link_dict(r) for r in rows])
+    links = logic.links_by_ids([_link_dict(r) for r in rows], ids)
+    csv_text = logic.links_to_csv(links)
     return anvil.BlobMedia("text/csv", csv_text.encode("utf-8"),
                            name="send2me-links.csv")
 

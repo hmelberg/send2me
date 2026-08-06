@@ -17,6 +17,20 @@ components:
   name: mode_panel
   properties: {role: settings-row}
   type: FlowPanel
+- components:
+  - event_bindings: {change: encrypt_changed}
+    layout_properties: {}
+    name: check_encrypt
+    properties: {text: Encrypt my saved links}
+    type: CheckBox
+  - layout_properties: {}
+    name: label_encrypt_hint
+    properties: {role: settings-hint, text: 'Not even the admin can read them'}
+    type: Label
+  layout_properties: {}
+  name: encrypt_panel
+  properties: {role: settings-row}
+  type: FlowPanel
 - layout_properties: {}
   name: label_bookmark_hint
   properties: {role: settings-hint, text: 'On a new computer? Drag these to your bookmarks bar:'}

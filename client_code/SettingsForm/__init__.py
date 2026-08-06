@@ -23,6 +23,7 @@ class SettingsForm(SettingsFormTemplate):
         self.label_email.text = settings["email"]
         self.drop_down_mode.selected_value = settings["mode"]
         self.saved_mode = settings["mode"]
+        self.check_encrypt.checked = bool(settings.get("encrypted"))
         bookmark = anvil.server.call('make_bookmarklet', self.key)
         if bookmark["ok"]:
             self.link_bookmarklet.url = bookmark["js"]
@@ -40,6 +41,33 @@ class SettingsForm(SettingsFormTemplate):
             self.saved_mode = result["mode"]
             self._status("Saved.")
         else:
+            self._status(result["error"])
+
+    def encrypt_changed(self, **event_args):
+        turn_on = self.check_encrypt.checked
+        if turn_on:
+            ok = confirm("Encrypt your saved links?\n\n"
+                         "Your key becomes the only way to read them. If you "
+                         "lose it and register again, your saved links will "
+                         "be deleted. Export CSV first if you want a plain copy.",
+                         dismissible=True,
+                         buttons=[("Encrypt my links", True), ("Cancel", False)])
+        else:
+            ok = confirm("Turn off encryption?\n\n"
+                         "Your saved links will be stored as plain text again.",
+                         dismissible=True,
+                         buttons=[("Turn off", True), ("Cancel", False)])
+        if not ok:
+            self.check_encrypt.checked = not turn_on
+            return
+        result = anvil.server.call('save_settings', self.key, encrypt=turn_on)
+        if result["ok"]:
+            if turn_on:
+                self._status("Encrypted %d links." % (result.get("migrated") or 0))
+            else:
+                self._status("Encryption turned off.")
+        else:
+            self.check_encrypt.checked = not turn_on
             self._status(result["error"])
 
     def link_delete_all_click(self, **event_args):

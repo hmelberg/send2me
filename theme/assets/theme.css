@@ -847,7 +847,7 @@ body, .structure {
 .anvil-container.anvil-role-header-tag,
 .anvil-container.anvil-role-settings-panel,
 .anvil-container.anvil-role-login-panel,
-.anvil-container.anvil-role-toolbar,
+.anvil-container.anvil-role-header-actions,
 .anvil-container.anvil-role-link-head,
 .anvil-container.anvil-role-link-list {
   padding: 0;
@@ -899,13 +899,20 @@ a.anvil-role-brand-name {
 a.anvil-role-brand-name:hover { color: %color:Primary 700% !important; }
 a.anvil-role-brand-name > .link-text { padding: 0; }
 
-.flow-panel.anvil-role-header-search > .flow-panel-gutter {
+/* Everything that acts on the list sits on one line in the header's right
+   flank: search, current tag, selection pill, export, settings. Wraps to a
+   second right-aligned line when the window gets narrow. Anvil writes
+   justify-content inline on the gutter from the panel's `align` property,
+   hence the !important. */
+.flow-panel.anvil-role-header-actions > .flow-panel-gutter {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end !important;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.4rem 0.9rem;
   margin: 0;
 }
-.flow-panel.anvil-role-header-search > .flow-panel-gutter > .flow-panel-item { margin: 0; }
+.flow-panel.anvil-role-header-actions > .flow-panel-gutter > .flow-panel-item { margin: 0; }
 .anvil-role-header-count > .label-text {
   color: %color:Gray 600%;
   font-size: 14px;
@@ -996,24 +1003,8 @@ input.anvil-component.anvil-role-header-tag-input:focus {
   margin: 0;
 }
 
-/* Filter bar: right-aligned under the header controls, and deliberately quiet -
-   it should not compete with the list. Each control sharpens on focus. */
-.flow-panel.anvil-role-toolbar > .flow-panel-gutter {
-  display: flex;
-  flex-wrap: wrap;
-  /* Anvil writes justify-content as an INLINE style on the gutter, from the
-     FlowPanel's `align` property - a plain rule here is silently ignored.
-     The panel is set to align: right as well; this makes it stick. */
-  justify-content: flex-end !important;
-  align-items: center;
-  gap: 0.4rem 1rem;
-  margin: 0.7rem 0 0.3rem;
-}
-.flow-panel.anvil-role-toolbar > .flow-panel-gutter > .flow-panel-item {
-  margin: 0;
-}
 input.anvil-component.anvil-role-toolbar-search {
-  width: 16rem;
+  width: 14rem;
   max-width: 100%;
   margin-bottom: 0;
   padding: 6px 12px;
@@ -1034,20 +1025,6 @@ input.anvil-component.anvil-role-toolbar-search:focus {
   background-color: white;
   color: rgba(0, 0, 0, 0.87);
 }
-.anvil-role-toolbar .anvil-dropdown select.form-control {
-  margin-bottom: 0;
-  border-bottom: 1px solid #E4E9ED;
-  color: %color:Gray 600%;
-  font-size: 13px;
-}
-.anvil-role-toolbar .anvil-dropdown select.form-control:hover {
-  border-bottom: 1px solid #D2DAE1;
-}
-.anvil-role-toolbar .anvil-dropdown select.form-control:focus {
-  border-bottom: 1px solid %color:Primary 500%;
-  color: rgba(0, 0, 0, 0.87);
-}
-.anvil-role-toolbar .anvil-dropdown form:before { color: #A7AFB6; }
 a.anvil-role-toolbar-clear {
   color: #A7AFB6 !important;
   font-size: 13px;
@@ -1071,13 +1048,14 @@ a.anvil-role-toolbar-selected:hover {
 }
 a.anvil-role-toolbar-selected > .link-text { padding: 0; }
 
-/* The seven-column grid shared by the header row and every link row.
-   The first column is the selection checkbox for export; the 6px indent on
-   its label keeps the box off the card edge. */
+/* The seven-column grid shared by the header row and every link row:
+   stars, select-checkbox, date, title, delete, tags, note. The delete x
+   sits right after the title it deletes, not across the row from it, and
+   the checkbox lives next to the date instead of hugging the card edge. */
 .flow-panel.anvil-role-link-head > .flow-panel-gutter,
 .flow-panel.anvil-role-link-row > .flow-panel-gutter {
   display: grid;
-  grid-template-columns: 26px 62px 78px minmax(0, 2.2fr) 150px minmax(0, 1.8fr) 22px;
+  grid-template-columns: 62px 18px 78px minmax(0, 2.2fr) 22px 150px minmax(0, 1.8fr);
   align-items: center;
   column-gap: 14px;
   margin: 0;
@@ -1107,11 +1085,15 @@ a.anvil-role-head-cell:hover > .link-text { color: %color:Primary 700%; }
    caret at the far edge of the 150px column - the arrow ends up reading as a
    stray mark between TAGS and NOTE rather than as part of TAGS. Shrinking the
    control to its own text puts the caret right after the word, the way the
-   sort arrow sits after DATE. The inline style is why !important is needed. */
+   sort arrow sits after DATE. The inline style is why !important is needed.
+   The caret (form:before, absolute at right:0) parks in the OUTER padding,
+   where the select's text cannot reach it - padding on the select itself is
+   not honoured by every browser's select rendering. */
 .anvil-role-head-select {
   display: inline-block;
   width: auto;
   max-width: 100%;
+  padding-right: 1.4em;
 }
 .anvil-role-head-select form { width: auto !important; }
 .anvil-role-head-select select.form-control {
@@ -1119,7 +1101,7 @@ a.anvil-role-head-cell:hover > .link-text { color: %color:Primary 700%; }
   max-width: 100%;
   height: auto;
   margin-bottom: 0;
-  padding: 4px 1.6em 4px 0;
+  padding: 4px 0.2em 4px 0;
   border-bottom: 0;
   color: %color:Gray 600%;
   font-size: 12px;
@@ -1219,7 +1201,7 @@ div.anvil-role-row-check.checkbox {
   min-height: 0;
 }
 .anvil-role-row-check label {
-  padding: 0 0 0 6px;
+  padding: 0;
   min-height: 16px;
 }
 .anvil-role-row-check input {
@@ -1259,20 +1241,20 @@ a.anvil-role-row-delete > .link-text { padding: 5px 0; }
 @media (max-width: 760px) {
   .anvil-role-link-head { display: none; }
   .flow-panel.anvil-role-link-row > .flow-panel-gutter {
-    grid-template-columns: 26px 58px minmax(0, 1fr) 26px 22px;
+    grid-template-columns: 58px 20px minmax(0, 1fr) 26px 22px;
     column-gap: 8px;
     row-gap: 1px;
   }
-  /* 1 check, 2 stars, 3 date, 4 title, 5 tags, 6 note, 7 delete, 8 note icon.
+  /* 1 stars, 2 check, 3 date, 4 title, 5 delete, 6 tags, 7 note, 8 note icon.
      The checkbox shares the first line; the date tucks in under the stars. */
   .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(1) { grid-area: 1 / 1; }
   .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(2) { grid-area: 1 / 2; }
   .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(4) { grid-area: 1 / 3 / 2 / 5; }
-  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(7) { grid-area: 1 / 5; }
-  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(3) { grid-area: 2 / 2; }
-  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(5) { grid-area: 2 / 3; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(5) { grid-area: 1 / 5; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(3) { grid-area: 2 / 1; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(6) { grid-area: 2 / 3; }
   .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(8) { grid-area: 2 / 4; display: block; }
-  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(6) { grid-area: 3 / 1 / 4 / 6; }
+  .flow-panel.anvil-role-link-row > .flow-panel-gutter > .flow-panel-item:nth-child(7) { grid-area: 3 / 1 / 4 / 6; }
 
   /* folded away until the note icon is tapped; the empty cell collapses */
   input.anvil-component.anvil-role-row-note { display: none; }
@@ -1302,8 +1284,8 @@ a.anvil-role-row-delete > .link-text { padding: 5px 0; }
     grid-area: 2 / 1 / 3 / 3;
     justify-self: stretch;
   }
-  /* the search box takes its line, but leaves room for the clear icon */
-  .flow-panel.anvil-role-header-search > .flow-panel-gutter > .flow-panel-item:first-child {
+  /* the search box grows to fill its line; the pills and icons wrap under */
+  .flow-panel.anvil-role-header-actions > .flow-panel-gutter > .flow-panel-item:first-child {
     flex: 1 1 auto;
   }
   input.anvil-component.anvil-role-toolbar-search { width: 100%; }

@@ -43,11 +43,10 @@ class LinksForm(LinksFormTemplate):
             return
         self._status("")
         self.login_panel.visible = False
-        self.search_panel.visible = True
+        self.actions_panel.visible = True
         self.tag_panel.visible = True
         self.link_export.visible = True
         self.link_settings.visible = True
-        self.toolbar_panel.visible = True
         self.head_panel.visible = True
         self.text_box_current_tag.text = settings["current_tag"]
         self.saved_tag = settings["current_tag"]

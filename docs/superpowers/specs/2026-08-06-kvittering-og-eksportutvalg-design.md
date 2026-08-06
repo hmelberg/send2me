@@ -113,3 +113,17 @@ etterses i kjørende app etter deploy.
   synes fortsatt ved at feilsider aldri lukker seg selv.
 - Checkbox-kolonna fikk luft: 26 px kolonne (også mobil) med 6 px innrykk,
   så boksen ikke ligger helt inntil kortkanten.
+
+## Justeringer 2026-08-07, etter bruk
+
+- Kolonneorden: stjerner, avkryssing, dato, tittel, ✕, stikkord, notat.
+  Slette-✕ står rett etter tittelen den sletter (sto ytterst til høyre,
+  langt fra lenken), og avkryssingen inntil datoen i stedet for helt
+  inntil kortkanten (innrykket fra 2026-08-06 dermed overflødig og
+  fjernet).
+- Hele topplinja på én rad: søk, current tag, utvalgs-pilla, ⬇ og ⚙ i
+  headerens høyre flanke (flex-wrap tar smale vinduer); den egne
+  verktøylinja er fjernet.
+- TAGS-pila i kolonneoverskriften parkeres nå i ytre padding på
+  komponenten i stedet for i select-elementets egen padding — ikke alle
+  nettlesere respekterer padding på select, og da la pila seg over ordet.

@@ -34,9 +34,46 @@ components:
         properties: {icon: 'fa:times', role: toolbar-clear, text: '',
           tooltip: 'Clear search and tag filter', url: '', visible: false}
         type: Link
+      - components:
+        - layout_properties: {}
+          name: label_tag_icon
+          properties: {icon: 'fa:tag', role: header-tag-icon, text: '',
+            tooltip: 'Tag added to every new link you save'}
+          type: Label
+        - event_bindings: {lost_focus: current_tag_saved, pressed_enter: current_tag_saved}
+          layout_properties: {}
+          name: text_box_current_tag
+          properties: {placeholder: 'Set current tag', role: header-tag-input,
+            tooltip: 'Tag added to every new link you save'}
+          type: TextBox
+        layout_properties: {}
+        name: tag_panel
+        properties: {role: header-tag, visible: false}
+        type: FlowPanel
+      - components: []
+        event_bindings: {click: link_selected_click}
+        layout_properties: {}
+        name: link_selected
+        properties: {role: toolbar-selected, text: '', tooltip: 'Clear selection',
+          url: '', visible: false}
+        type: Link
+      - components: []
+        event_bindings: {click: link_export_click}
+        layout_properties: {}
+        name: link_export
+        properties: {icon: 'fa:download', role: header-icon, tooltip: Export CSV,
+          url: '', visible: false}
+        type: Link
+      - components: []
+        event_bindings: {click: link_settings_click}
+        layout_properties: {}
+        name: link_settings
+        properties: {icon: 'fa:cog', role: header-icon, tooltip: Settings, url: '',
+          visible: false}
+        type: Link
       layout_properties: {}
-      name: search_panel
-      properties: {role: header-search, visible: false}
+      name: actions_panel
+      properties: {align: right, role: header-actions, visible: false}
       type: FlowPanel
     layout_properties: {}
     name: header_panel
@@ -63,59 +100,17 @@ components:
     type: FlowPanel
   - components:
     - components: []
-      event_bindings: {click: link_selected_click}
+      event_bindings: {click: sort_by_stars}
       layout_properties: {}
-      name: link_selected
-      properties: {role: toolbar-selected, text: '', tooltip: 'Clear selection',
-        url: '', visible: false}
+      name: link_head_stars
+      properties: {role: head-cell, text: "★", tooltip: Sort by stars, url: ''}
       type: Link
-    - components:
-      - layout_properties: {}
-        name: label_tag_icon
-        properties: {icon: 'fa:tag', role: header-tag-icon, text: '',
-          tooltip: 'Tag added to every new link you save'}
-        type: Label
-      - event_bindings: {lost_focus: current_tag_saved, pressed_enter: current_tag_saved}
-        layout_properties: {}
-        name: text_box_current_tag
-        properties: {placeholder: 'Set current tag', role: header-tag-input,
-          tooltip: 'Tag added to every new link you save'}
-        type: TextBox
-      layout_properties: {}
-      name: tag_panel
-      properties: {role: header-tag, visible: false}
-      type: FlowPanel
-    - components: []
-      event_bindings: {click: link_export_click}
-      layout_properties: {}
-      name: link_export
-      properties: {icon: 'fa:download', role: header-icon, tooltip: Export CSV,
-        url: '', visible: false}
-      type: Link
-    - components: []
-      event_bindings: {click: link_settings_click}
-      layout_properties: {}
-      name: link_settings
-      properties: {icon: 'fa:cog', role: header-icon, tooltip: Settings, url: '',
-        visible: false}
-      type: Link
-    layout_properties: {}
-    name: toolbar_panel
-    properties: {align: right, role: toolbar, visible: false}
-    type: FlowPanel
-  - components:
     - event_bindings: {change: select_all_changed}
       layout_properties: {}
       name: check_box_all
       properties: {role: row-check, text: '',
         tooltip: 'Select or clear every link that matches the filter'}
       type: CheckBox
-    - components: []
-      event_bindings: {click: sort_by_stars}
-      layout_properties: {}
-      name: link_head_stars
-      properties: {role: head-cell, text: "★", tooltip: Sort by stars, url: ''}
-      type: Link
     - components: []
       event_bindings: {click: sort_by_date}
       layout_properties: {}
@@ -128,6 +123,10 @@ components:
       name: link_head_title
       properties: {role: head-cell, text: Title, tooltip: Sort by title, url: ''}
       type: Link
+    - layout_properties: {}
+      name: label_head_end
+      properties: {role: head-cell, text: ''}
+      type: Label
     - event_bindings: {change: filter_changed}
       layout_properties: {}
       name: drop_down_tag
@@ -136,10 +135,6 @@ components:
     - layout_properties: {}
       name: label_head_note
       properties: {role: head-cell, text: Note}
-      type: Label
-    - layout_properties: {}
-      name: label_head_end
-      properties: {role: head-cell, text: ''}
       type: Label
     layout_properties: {}
     name: head_panel

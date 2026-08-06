@@ -1,9 +1,4 @@
 components:
-- event_bindings: {change: check_box_select_change}
-  layout_properties: {}
-  name: check_box_select
-  properties: {role: row-check, text: '', tooltip: 'Select for export'}
-  type: CheckBox
 - components:
   - components: []
     event_bindings: {click: link_star1_click}
@@ -27,6 +22,11 @@ components:
   name: stars_panel
   properties: {role: stars}
   type: FlowPanel
+- event_bindings: {change: check_box_select_change}
+  layout_properties: {}
+  name: check_box_select
+  properties: {role: row-check, text: '', tooltip: 'Select for export'}
+  type: CheckBox
 - layout_properties: {}
   name: label_date
   properties: {role: row-date, text: ''}
@@ -35,6 +35,12 @@ components:
   layout_properties: {}
   name: link_title
   properties: {role: row-title, text: '', url: ''}
+  type: Link
+- components: []
+  event_bindings: {click: link_delete_click}
+  layout_properties: {}
+  name: link_delete
+  properties: {role: row-delete, text: "✕", tooltip: Delete this link, url: ''}
   type: Link
 - event_bindings: {lost_focus: text_box_tags_lost_focus, pressed_enter: text_box_tags_pressed_enter}
   layout_properties: {}
@@ -46,12 +52,6 @@ components:
   name: text_box_note
   properties: {placeholder: note, role: row-note}
   type: TextBox
-- components: []
-  event_bindings: {click: link_delete_click}
-  layout_properties: {}
-  name: link_delete
-  properties: {role: row-delete, text: "✕", tooltip: Delete this link, url: ''}
-  type: Link
 - components: []
   event_bindings: {click: link_note_toggle_click}
   layout_properties: {}

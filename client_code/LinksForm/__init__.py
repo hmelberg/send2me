@@ -43,6 +43,7 @@ class LinksForm(LinksFormTemplate):
             return
         self._status("")
         self.login_panel.visible = False
+        self.search_panel.visible = True
         self.tag_panel.visible = True
         self.link_export.visible = True
         self.link_settings.visible = True

@@ -1,40 +1,43 @@
 components:
 - components:
   - components:
+    - components:
+      - layout_properties: {}
+        name: image_brand
+        properties: {display_mode: shrink_to_fit, height: 22,
+          source: '_/theme/iconfinder_telegram_3246742.png'}
+        type: Image
+      - components: []
+        layout_properties: {}
+        name: link_brand
+        properties: {role: brand-name, text: send2me.app,
+          url: 'https://send2me.app/'}
+        type: Link
+      layout_properties: {}
+      name: brand_panel
+      properties: {role: header-brand}
+      type: FlowPanel
     - layout_properties: {}
       name: label_title
       properties: {role: headline, text: My links}
       type: Label
     - components:
-      - layout_properties: {}
-        name: label_tag_icon
-        properties: {icon: 'fa:tag', role: header-tag-icon, text: '',
-          tooltip: 'Tag added to every new link you save'}
-        type: Label
-      - event_bindings: {lost_focus: current_tag_saved, pressed_enter: current_tag_saved}
+      - event_bindings: {change: filter_changed, pressed_enter: filter_changed}
         layout_properties: {}
-        name: text_box_current_tag
-        properties: {placeholder: 'current tag', role: header-tag-input,
-          tooltip: 'Tag added to every new link you save'}
+        name: text_box_search
+        properties: {placeholder: 'Search title, tags, notes ...', role: toolbar-search}
         type: TextBox
+      - components: []
+        event_bindings: {click: link_clear_click}
+        layout_properties: {}
+        name: link_clear
+        properties: {icon: 'fa:times', role: toolbar-clear, text: '',
+          tooltip: 'Clear search and tag filter', url: '', visible: false}
+        type: Link
       layout_properties: {}
-      name: tag_panel
-      properties: {role: header-tag, visible: false}
+      name: search_panel
+      properties: {role: header-search, visible: false}
       type: FlowPanel
-    - components: []
-      event_bindings: {click: link_export_click}
-      layout_properties: {}
-      name: link_export
-      properties: {icon: 'fa:download', role: header-icon, tooltip: Export CSV,
-        url: '', visible: false}
-      type: Link
-    - components: []
-      event_bindings: {click: link_settings_click}
-      layout_properties: {}
-      name: link_settings
-      properties: {icon: 'fa:cog', role: header-icon, tooltip: Settings, url: '',
-        visible: false}
-      type: Link
     layout_properties: {}
     name: header_panel
     properties: {role: page-header}
@@ -66,17 +69,35 @@ components:
       properties: {role: toolbar-selected, text: '', tooltip: 'Clear selection',
         url: '', visible: false}
       type: Link
-    - event_bindings: {change: filter_changed, pressed_enter: filter_changed}
+    - components:
+      - layout_properties: {}
+        name: label_tag_icon
+        properties: {icon: 'fa:tag', role: header-tag-icon, text: '',
+          tooltip: 'Tag added to every new link you save'}
+        type: Label
+      - event_bindings: {lost_focus: current_tag_saved, pressed_enter: current_tag_saved}
+        layout_properties: {}
+        name: text_box_current_tag
+        properties: {placeholder: 'Set current tag', role: header-tag-input,
+          tooltip: 'Tag added to every new link you save'}
+        type: TextBox
       layout_properties: {}
-      name: text_box_search
-      properties: {placeholder: 'Search title, tags, notes ...', role: toolbar-search}
-      type: TextBox
+      name: tag_panel
+      properties: {role: header-tag, visible: false}
+      type: FlowPanel
     - components: []
-      event_bindings: {click: link_clear_click}
+      event_bindings: {click: link_export_click}
       layout_properties: {}
-      name: link_clear
-      properties: {icon: 'fa:times', role: toolbar-clear, text: '',
-        tooltip: 'Clear search and tag filter', url: '', visible: false}
+      name: link_export
+      properties: {icon: 'fa:download', role: header-icon, tooltip: Export CSV,
+        url: '', visible: false}
+      type: Link
+    - components: []
+      event_bindings: {click: link_settings_click}
+      layout_properties: {}
+      name: link_settings
+      properties: {icon: 'fa:cog', role: header-icon, tooltip: Settings, url: '',
+        visible: false}
       type: Link
     layout_properties: {}
     name: toolbar_panel

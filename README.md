@@ -30,7 +30,9 @@ inn nøkkelen manuelt på siden.
 Lenkelista er det eneste som står i fokus. Én lenke = én rad, med stjerner,
 dato, tittel, stikkord og notat i faste kolonner:
 
-- **Høyremeny i overskrifta:** current tag som en pille (🏷), Export CSV som
+- **Topplinje:** logo + send2me.app øverst til venstre, «My links» midtstilt
+  og søkefeltet til høyre. Verktøylinja under (høyrejustert) har utvalgs-pilla,
+  current tag som en pille (🏷, «Set current tag»), Export CSV som
   nedlastingsikon (⬇) og tannhjulet (⚙). Tannhjulet åpner en modal med e-post,
   sendemodus, bookmarklet-lenkene og «Delete all my links» (egen linje, ikon,
   bekreftelse).
@@ -49,8 +51,9 @@ dato, tittel, stikkord og notat i faste kolonner:
 - **Per lenke:** 0–3 stjerner (klikk stjerne *n* for den verdien, klikk den
   øverste igjen for å nullstille), stikkord og notat redigeres inline og
   autolagres. ✕ til høyre sletter (vises når musa er over rada).
-- **Filtrering:** fritekstsøk i tittel, URL, stikkord og notat i verktøylinja,
-  og stikkordfilter som nedtrekk i TAGS-kolonneoverskriften. ✕ nullstiller.
+- **Filtrering:** fritekstsøk i tittel, URL, stikkord og notat øverst til
+  høyre, og stikkordfilter som nedtrekk i TAGS-kolonneoverskriften.
+  ✕ nullstiller.
 - **Merk og eksporter:** checkbox per rad, og merk-alle i kolonneoverskriften
   som tar *hele* det filtrerte settet (ikke bare radene på skjermen). Utvalget
   overlever filterbytter, så det kan samles opp filter for filter; pilla

@@ -853,21 +853,59 @@ body, .structure {
   padding: 0;
 }
 
-/* Header: title on the left, count and settings cog on the right */
+/* Header: brand top left, the page title dead centre, search top right.
+   Equal 1fr flanks are what keep the title centred on the card, not on
+   whatever space the brand and search happen to leave over. */
 .flow-panel.anvil-role-page-header > .flow-panel-gutter {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
+  column-gap: 1rem;
   margin: 0.2rem 0 0;
   border-bottom: 1px solid #E8ECF0;
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.6rem;
 }
 .flow-panel.anvil-role-page-header > .flow-panel-gutter > .flow-panel-item {
-  margin: 0 0 0 0.9rem;
+  margin: 0;
+  min-width: 0;
 }
 .flow-panel.anvil-role-page-header > .flow-panel-gutter > .flow-panel-item:first-child {
-  margin-left: 0;
-  margin-right: auto;
+  justify-self: start;
 }
+.flow-panel.anvil-role-page-header > .flow-panel-gutter > .flow-panel-item:last-child {
+  justify-self: end;
+}
+/* The headline role is 24px elsewhere; as a centred page title inside the
+   header bar it reads better a step down. */
+.anvil-role-page-header .anvil-role-headline {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 500;
+}
+
+.flow-panel.anvil-role-header-brand > .flow-panel-gutter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.flow-panel.anvil-role-header-brand > .flow-panel-gutter > .flow-panel-item { margin: 0; }
+a.anvil-role-brand-name {
+  color: %color:Gray 800% !important;
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+a.anvil-role-brand-name:hover { color: %color:Primary 700% !important; }
+a.anvil-role-brand-name > .link-text { padding: 0; }
+
+.flow-panel.anvil-role-header-search > .flow-panel-gutter {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+}
+.flow-panel.anvil-role-header-search > .flow-panel-gutter > .flow-panel-item { margin: 0; }
 .anvil-role-header-count > .label-text {
   color: %color:Gray 600%;
   font-size: 14px;
@@ -888,7 +926,7 @@ a.anvil-role-header-icon:hover {
 .flow-panel.anvil-role-header-tag > .flow-panel-gutter {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 9px;
   margin: 0;
 }
 .flow-panel.anvil-role-header-tag > .flow-panel-gutter > .flow-panel-item { margin: 0; }
@@ -969,13 +1007,13 @@ input.anvil-component.anvil-role-header-tag-input:focus {
   justify-content: flex-end !important;
   align-items: center;
   gap: 0.4rem 1rem;
-  margin: 1rem 0 0.3rem;
+  margin: 0.7rem 0 0.3rem;
 }
 .flow-panel.anvil-role-toolbar > .flow-panel-gutter > .flow-panel-item {
   margin: 0;
 }
 input.anvil-component.anvil-role-toolbar-search {
-  width: 20rem;
+  width: 16rem;
   max-width: 100%;
   margin-bottom: 0;
   padding: 6px 12px;
@@ -1081,7 +1119,7 @@ a.anvil-role-head-cell:hover > .link-text { color: %color:Primary 700%; }
   max-width: 100%;
   height: auto;
   margin-bottom: 0;
-  padding: 4px 1.2em 4px 0;
+  padding: 4px 1.6em 4px 0;
   border-bottom: 0;
   color: %color:Gray 600%;
   font-size: 12px;
@@ -1253,28 +1291,23 @@ a.anvil-role-row-delete > .link-text { padding: 5px 0; }
   }
   a.anvil-role-row-delete > .link-text { padding: 3px 0; }
 
-  /* the search box takes the line, but leaves room for the clear icon beside it */
-  .flow-panel.anvil-role-toolbar > .flow-panel-gutter > .flow-panel-item:first-child {
+  /* Header: brand and title share the first line, search takes the second */
+  .flow-panel.anvil-role-page-header > .flow-panel-gutter {
+    grid-template-columns: auto 1fr;
+    row-gap: 0.5rem;
+  }
+  .flow-panel.anvil-role-page-header > .flow-panel-gutter > .flow-panel-item:nth-child(1) { grid-area: 1 / 1; }
+  .flow-panel.anvil-role-page-header > .flow-panel-gutter > .flow-panel-item:nth-child(2) { grid-area: 1 / 2; justify-self: end; }
+  .flow-panel.anvil-role-page-header > .flow-panel-gutter > .flow-panel-item:nth-child(3) {
+    grid-area: 2 / 1 / 3 / 3;
+    justify-self: stretch;
+  }
+  /* the search box takes its line, but leaves room for the clear icon */
+  .flow-panel.anvil-role-header-search > .flow-panel-gutter > .flow-panel-item:first-child {
     flex: 1 1 auto;
   }
   input.anvil-component.anvil-role-toolbar-search { width: 100%; }
-  input.anvil-component.anvil-role-header-tag-input { width: 7rem; }
-}
-
-/* Phones: the title takes the first line, the tag pill and icons the second */
-@media (max-width: 480px) {
-  .flow-panel.anvil-role-page-header > .flow-panel-gutter {
-    flex-wrap: wrap;
-    row-gap: 0.4rem;
-  }
-  .flow-panel.anvil-role-page-header > .flow-panel-gutter > .flow-panel-item:first-child {
-    flex-basis: 100%;
-    margin-right: 0;
-  }
-  .flow-panel.anvil-role-page-header > .flow-panel-gutter > .flow-panel-item:nth-child(2) {
-    margin-left: 0;
-    margin-right: auto;
-  }
+  input.anvil-component.anvil-role-header-tag-input { width: 8rem; }
 }
 
 /* Footer under the list: how much is on screen, and a way to get more.

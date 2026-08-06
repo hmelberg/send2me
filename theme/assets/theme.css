@@ -1083,25 +1083,35 @@ a.anvil-role-head-cell:hover > .link-text { color: %color:Primary 700%; }
 
 /* Anvil puts `width: 100%` inline on the dropdown's <form>, which parks its
    caret at the far edge of the 150px column - the arrow ends up reading as a
-   stray mark between TAGS and NOTE rather than as part of TAGS. Shrinking the
-   control to its own text puts the caret right after the word, the way the
-   sort arrow sits after DATE. The inline style is why !important is needed.
-   The caret (form:before, absolute at right:0) parks in the OUTER padding,
-   where the select's text cannot reach it - padding on the select itself is
-   not honoured by every browser's select rendering. */
+   stray mark between TAGS and NOTE rather than as part of TAGS. Shrinking
+   the control to its own text is what the !importants are for.
+   The theme's own caret (form:before) is positioned absolutely at the
+   component's right edge, which trusts the select's intrinsic width -
+   browsers disagree about that (extra option chrome, ignored padding), and
+   the arrow kept landing on top of the word. So: kill the absolute caret
+   and draw one in normal flow right AFTER the select box, where it cannot
+   overlap the text no matter how the browser sizes the select. */
 .anvil-role-head-select {
   display: inline-block;
   width: auto;
   max-width: 100%;
-  padding-right: 1.4em;
 }
 .anvil-role-head-select form { width: auto !important; }
+.anvil-role-head-select form:before { content: none; }
+.anvil-role-head-select form:after {
+  content: "\25BC";
+  display: inline-block;
+  margin-left: 7px;
+  font-size: 80%;
+  color: #A7AFB6;
+  pointer-events: none;
+}
 .anvil-role-head-select select.form-control {
   width: auto !important;
   max-width: 100%;
   height: auto;
   margin-bottom: 0;
-  padding: 4px 0.2em 4px 0;
+  padding: 4px 0 4px 0;
   border-bottom: 0;
   color: %color:Gray 600%;
   font-size: 12px;
@@ -1110,7 +1120,6 @@ a.anvil-role-head-cell:hover > .link-text { color: %color:Primary 700%; }
   cursor: pointer;
 }
 .anvil-role-head-select select.form-control:hover { color: %color:Primary 700%; }
-.anvil-role-head-select form:before { color: #A7AFB6; line-height: 1.4em; }
 
 .anvil-role-link-row {
   display: block;

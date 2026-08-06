@@ -124,6 +124,9 @@ etterses i kjørende app etter deploy.
 - Hele topplinja på én rad: søk, current tag, utvalgs-pilla, ⬇ og ⚙ i
   headerens høyre flanke (flex-wrap tar smale vinduer); den egne
   verktøylinja er fjernet.
-- TAGS-pila i kolonneoverskriften parkeres nå i ytre padding på
-  komponenten i stedet for i select-elementets egen padding — ikke alle
-  nettlesere respekterer padding på select, og da la pila seg over ordet.
+- TAGS-pila i kolonneoverskriften: begge padding-variantene (på select og
+  på ytre komponent) stolte på selectens egenberegnede bredde, som
+  nettlesere er uenige om — pila havnet oppå ordet. Endelig løsning:
+  temaets absolutte pil (`form:before`) er skrudd av, og en ny tegnes i
+  normal flyt (`form:after`) rett etter select-boksen, der den ikke kan
+  overlappe teksten uansett hvordan nettleseren måler selecten.

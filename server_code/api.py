@@ -29,10 +29,25 @@ def _sub_keys(row, token):
     return None
 
 
-def _link_dict(row):
-    return {"id": row.get_id(), "url": row["url"], "title": row["title"],
+def _enc(value, keys):
+    return logic.encrypt_value(value, keys) if keys else (value or "")
+
+
+def _dec(value, keys):
+    """Dekrypterer hvis feltet er kryptert og vi har nokler. Rader som ikke
+    lar seg dekryptere vises som markor i stedet for a krasje."""
+    if keys and logic.is_encrypted(value or ""):
+        plain = logic.decrypt_value(value, keys)
+        return "[unreadable]" if plain is None else plain
+    return value
+
+
+def _link_dict(row, keys=None):
+    return {"id": row.get_id(), "url": _dec(row["url"], keys),
+            "title": _dec(row["title"], keys),
             "saved": row["saved"], "fetched_at": row["fetched_at"],
-            "tags": row["tags"] or "", "note": row["note"] or "",
+            "tags": _dec(row["tags"], keys) or "",
+            "note": _dec(row["note"], keys) or "",
             "stars": logic.link_stars(row["stars"], row["starred"])}
 
 
@@ -124,12 +139,14 @@ def sendlink(**kwargs):
     if not url:
         return _html(logic.error_page_html("Missing URL."), 400)
     mode = logic.normalize_mode(row["mode"])
+    keys = _sub_keys(row, params.get("token"))
     if mode != "email":
+        tags = logic.normalize_tags(_dec(row["current_tag"], keys))
         app_tables.links.add_row(
-            email=row["email"], url=url, title=title,
+            email=row["email"], url=_enc(url, keys), title=_enc(title, keys),
             saved=datetime.datetime.now(), fetched_at=None,
-            tags=logic.normalize_tags(row["current_tag"]),
-            note="", stars=0, starred=False)
+            tags=_enc(tags, keys),
+            note=_enc("", keys), stars=0, starred=False)
         _enforce_cap(row["email"])
     if mode != "save":
         anvil.email.send(
@@ -143,9 +160,11 @@ def get_settings(token):
     row = _subscriber(token)
     if row is None:
         return {"ok": False, "error": "Unknown key."}
+    keys = _sub_keys(row, token)
     return {"ok": True, "email": row["email"],
             "mode": logic.normalize_mode(row["mode"]),
-            "current_tag": row["current_tag"] or ""}
+            "current_tag": _dec(row["current_tag"], keys) or "",
+            "encrypted": bool(row["enc"])}
 
 
 @anvil.server.callable
@@ -168,40 +187,42 @@ def get_my_links(token):
     row = _subscriber(token)
     if row is None:
         return {"ok": False, "error": "Unknown key."}
+    keys = _sub_keys(row, token)
     rows = app_tables.links.search(tables.order_by("saved", ascending=False),
                                    email=row["email"])
-    return {"ok": True, "links": [_jsonable(_link_dict(r)) for r in rows]}
+    return {"ok": True, "links": [_jsonable(_link_dict(r, keys)) for r in rows]}
 
 
 def _own_link(token, link_id):
     row = _subscriber(token)
     if row is None:
-        return None
+        return None, None
     link = app_tables.links.get_by_id(link_id)
     if link is None or link["email"] != row["email"]:
-        return None
-    return link
+        return None, None
+    return link, _sub_keys(row, token)
 
 
 @anvil.server.callable
 def update_link(token, link_id, tags=None, note=None, stars=None):
-    link = _own_link(token, link_id)
+    link, keys = _own_link(token, link_id)
     if link is None:
         return {"ok": False, "error": "Not found."}
     if tags is not None:
-        link["tags"] = logic.normalize_tags(tags)
+        clean = logic.normalize_tags(tags)
+        link["tags"] = _enc(clean, keys)
     if note is not None:
-        link["note"] = (note or "").strip()
+        link["note"] = _enc((note or "").strip(), keys)
     if stars is not None:
         n = logic.clamp_stars(stars)
         link.update(stars=n, starred=n > 0)
-    return {"ok": True, "tags": link["tags"] or "",
+    return {"ok": True, "tags": _dec(link["tags"], keys) or "",
             "stars": logic.link_stars(link["stars"], link["starred"])}
 
 
 @anvil.server.callable
 def delete_link(token, link_id):
-    link = _own_link(token, link_id)
+    link, _keys = _own_link(token, link_id)
     if link is None:
         return {"ok": False, "error": "Not found."}
     link.delete()
@@ -225,22 +246,23 @@ def export_csv(token, ids=None):
     row = _subscriber(token)
     if row is None:
         return None
+    keys = _sub_keys(row, token)
     rows = app_tables.links.search(tables.order_by("saved", ascending=False),
                                    email=row["email"])
-    links = logic.links_by_ids([_link_dict(r) for r in rows], ids)
+    links = logic.links_by_ids([_link_dict(r, keys) for r in rows], ids)
     csv_text = logic.links_to_csv(links)
     return anvil.BlobMedia("text/csv", csv_text.encode("utf-8"),
                            name="send2me-links.csv")
 
 
-def _query_links(row, params):
+def _query_links(row, keys, params):
     filters, err = logic.parse_links_query(params)
     if err:
         return {"ok": False, "error": err}
     result = []
     for link in app_tables.links.search(tables.order_by("saved", ascending=False),
                                         email=row["email"]):
-        d = _link_dict(link)
+        d = _link_dict(link, keys)
         if logic.link_matches(d, filters):
             result.append((link, d))
     if not filters["keep"]:
@@ -256,7 +278,8 @@ def get_links(token, **params):
     row = _subscriber(token)
     if row is None:
         return {"ok": False, "error": "Unknown key."}
-    return _query_links(row, params)
+    keys = _sub_keys(row, token)
+    return _query_links(row, keys, params)
 
 
 @anvil.server.http_endpoint("/links")
@@ -266,5 +289,6 @@ def links_endpoint(**kwargs):
     if row is None:
         return _json({"ok": False,
                       "error": "Unknown key. Register at send2me.app."}, 403)
-    result = _query_links(row, params)
+    keys = _sub_keys(row, params.get("token"))
+    result = _query_links(row, keys, params)
     return _json(result, 200 if result["ok"] else 400)

@@ -85,7 +85,16 @@ def register_email(email):
                 "error": "Too many registrations today. Try again tomorrow."}
     token = logic.new_token()
     if row:
-        row.update(token=token, reg_date=today, reg_count=count)
+        if row["enc"]:
+            # Nytt token = ny nokkel: gamle krypterte rader er ugjenkallelig
+            # uleselige, sa de slettes (jf. spec). Kryptering forblir pa.
+            for link in app_tables.links.search(email=email_n):
+                link.delete()
+            row.update(token=None, token_hash=logic.token_hash(token),
+                       enc_salt=logic.new_salt(), current_tag=None,
+                       reg_date=today, reg_count=count)
+        else:
+            row.update(token=token, reg_date=today, reg_count=count)
     else:
         app_tables.subscribers.add_row(
             email=email_n, token=token,

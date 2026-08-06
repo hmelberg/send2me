@@ -88,6 +88,15 @@ class TestTexts(unittest.TestCase):
         self.assertGreater(txt.index("Small print"), txt.index("On your phone"))
 
 
+class TestRegistrationEmailEncryption(unittest.TestCase):
+    def test_mentions_encryption_option(self):
+        text = logic.registration_email_text("TOK", "javascript:x", "https://send2me.app/#?key=TOK")
+        self.assertIn("Turn on encryption under Settings", text)
+        self.assertIn("previously saved links are deleted", text)
+        # avsnittet skal sta for "Small print"
+        self.assertLess(text.index("Turn on encryption"), text.index("Small print"))
+
+
 class TestLinkCap(unittest.TestCase):
     def links(self, n, starred=()):
         return [{"id": "L%d" % i, "saved": datetime.datetime(2026, 1, 1) +

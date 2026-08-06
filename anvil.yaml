@@ -57,6 +57,15 @@ db_schema:
     - admin_ui: {width: 150}
       name: current_tag
       type: string
+    - admin_ui: {width: 60}
+      name: enc
+      type: bool
+    - admin_ui: {width: 150}
+      name: enc_salt
+      type: string
+    - admin_ui: {width: 200}
+      name: token_hash
+      type: string
     indexes: []
     server: full
     title: Subscribers

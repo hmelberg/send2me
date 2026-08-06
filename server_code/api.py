@@ -11,8 +11,22 @@ import logic
 
 
 def _subscriber(token):
+    """Finner raden pa klartekst-token eller (for krypterte brukere) pa
+    SHA-256-hashen - selve tokenet lagres ikke nar kryptering er pa."""
     token = (token or "").strip()
-    return app_tables.subscribers.get(token=token) if token else None
+    if not token:
+        return None
+    row = app_tables.subscribers.get(token=token)
+    if row is None:
+        row = app_tables.subscribers.get(token_hash=logic.token_hash(token))
+    return row
+
+
+def _sub_keys(row, token):
+    """Nokkelpar for kryptert bruker, ellers None (klartekst-modus)."""
+    if row is not None and row["enc"]:
+        return logic.derive_keys((token or "").strip(), row["enc_salt"])
+    return None
 
 
 def _link_dict(row):
@@ -73,7 +87,7 @@ def register_email(email):
 @anvil.server.callable
 def make_bookmarklet(token):
     token = (token or "").strip()
-    row = app_tables.subscribers.get(token=token) if token else None
+    row = _subscriber(token)
     if row is None:
         return {"ok": False,
                 "error": "Unknown key. Check that you pasted the entire key from the email."}

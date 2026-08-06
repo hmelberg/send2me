@@ -167,19 +167,61 @@ def get_settings(token):
             "encrypted": bool(row["enc"])}
 
 
+def _enable_encryption(row, token):
+    """Krypterer alle brukerens rader, bytter lagret token med hash.
+    Returnerer (keys, antall_migrerte)."""
+    salt = logic.new_salt()
+    keys = logic.derive_keys(token, salt)
+    n = 0
+    for link in app_tables.links.search(email=row["email"]):
+        link.update(url=_enc(link["url"] or "", keys),
+                    title=_enc(link["title"] or "", keys),
+                    tags=_enc(link["tags"] or "", keys),
+                    note=_enc(link["note"] or "", keys))
+        n += 1
+    row.update(enc=True, enc_salt=salt,
+               token_hash=logic.token_hash(token), token=None,
+               current_tag=_enc(row["current_tag"] or "", keys))
+    return keys, n
+
+
+def _disable_encryption(row, token, keys):
+    """Dekrypterer alt tilbake til klartekst. Returnerer (None, antall)."""
+    n = 0
+    for link in app_tables.links.search(email=row["email"]):
+        link.update(url=_dec(link["url"], keys) or "",
+                    title=_dec(link["title"], keys) or "",
+                    tags=_dec(link["tags"], keys) or "",
+                    note=_dec(link["note"], keys) or "")
+        n += 1
+    row.update(enc=False, enc_salt=None, token_hash=None, token=token,
+               current_tag=_dec(row["current_tag"], keys) or "")
+    return None, n
+
+
 @anvil.server.callable
-def save_settings(token, mode=None, current_tag=None):
+def save_settings(token, mode=None, current_tag=None, encrypt=None):
     """Bare feltene som sendes inn endres - modus bor i innstillings-modalen,
-    current tag i overskriften, og de lagrer seg hver for seg."""
+    current tag i overskriften, og de lagrer seg hver for seg.
+    encrypt=True/False migrerer alle brukerens rader i samme kall."""
+    token = (token or "").strip()
     row = _subscriber(token)
     if row is None:
         return {"ok": False, "error": "Unknown key."}
+    keys = _sub_keys(row, token)
+    migrated = None
+    if encrypt is not None and bool(encrypt) != bool(row["enc"]):
+        if encrypt:
+            keys, migrated = _enable_encryption(row, token)
+        else:
+            keys, migrated = _disable_encryption(row, token, keys)
     if mode is not None:
         row["mode"] = logic.normalize_mode(mode)
     if current_tag is not None:
-        row["current_tag"] = logic.normalize_tags(current_tag)
+        row["current_tag"] = _enc(logic.normalize_tags(current_tag), keys)
     return {"ok": True, "mode": logic.normalize_mode(row["mode"]),
-            "current_tag": row["current_tag"] or ""}
+            "current_tag": _dec(row["current_tag"], keys) or "",
+            "encrypted": bool(row["enc"]), "migrated": migrated}
 
 
 @anvil.server.callable

@@ -282,5 +282,80 @@ class TestCsv(unittest.TestCase):
         self.assertTrue(logic.links_to_csv(rows).strip().endswith(",1,"))
 
 
+class TestCrypto(unittest.TestCase):
+    token = "abc123TOKENxyz"
+
+    def setUp(self):
+        self.salt = logic.new_salt()
+        self.keys = logic.derive_keys(self.token, self.salt)
+
+    def test_roundtrip_unicode(self):
+        plain = "https://vg.no/søk?q=blåbær og tittel med æøå"
+        enc = logic.encrypt_value(plain, self.keys)
+        self.assertTrue(enc.startswith(logic.ENC_PREFIX))
+        self.assertNotIn("vg.no", enc)
+        self.assertEqual(logic.decrypt_value(enc, self.keys), plain)
+
+    def test_empty_string_roundtrip(self):
+        enc = logic.encrypt_value("", self.keys)
+        self.assertTrue(logic.is_encrypted(enc))
+        self.assertEqual(logic.decrypt_value(enc, self.keys), "")
+
+    def test_none_encrypts_as_empty(self):
+        enc = logic.encrypt_value(None, self.keys)
+        self.assertEqual(logic.decrypt_value(enc, self.keys), "")
+
+    def test_wrong_token_gives_none(self):
+        enc = logic.encrypt_value("hemmelig", self.keys)
+        other = logic.derive_keys("feil-token", self.salt)
+        self.assertIsNone(logic.decrypt_value(enc, other))
+
+    def test_tampering_gives_none(self):
+        import base64
+        enc = logic.encrypt_value("hemmelig lenke", self.keys)
+        raw = bytearray(base64.urlsafe_b64decode(enc[len(logic.ENC_PREFIX):]))
+        raw[20] ^= 0xFF  # flipp en byte i chifferteksten
+        tampered = logic.ENC_PREFIX + base64.urlsafe_b64encode(bytes(raw)).decode("ascii")
+        self.assertIsNone(logic.decrypt_value(tampered, self.keys))
+
+    def test_garbage_gives_none(self):
+        self.assertIsNone(logic.decrypt_value("e1:ikke-base64!!!", self.keys))
+        self.assertIsNone(logic.decrypt_value("e1:" , self.keys))
+        self.assertIsNone(logic.decrypt_value("https://klartekst.no", self.keys))
+
+    def test_fresh_nonce_gives_distinct_ciphertexts(self):
+        a = logic.encrypt_value("samme tekst", self.keys)
+        b = logic.encrypt_value("samme tekst", self.keys)
+        self.assertNotEqual(a, b)
+
+    def test_is_encrypted(self):
+        self.assertTrue(logic.is_encrypted(logic.encrypt_value("x", self.keys)))
+        self.assertFalse(logic.is_encrypted("https://vg.no"))
+        self.assertFalse(logic.is_encrypted(""))
+        self.assertFalse(logic.is_encrypted(None))
+
+    def test_derivation_deterministic(self):
+        again = logic.derive_keys(self.token, self.salt)
+        self.assertEqual(self.keys, again)
+        other_salt = logic.derive_keys(self.token, logic.new_salt())
+        self.assertNotEqual(self.keys, other_salt)
+
+    def test_token_hash(self):
+        h = logic.token_hash(self.token)
+        self.assertEqual(len(h), 64)
+        self.assertEqual(h, logic.token_hash(self.token))
+        self.assertNotEqual(h, logic.token_hash("annet-token"))
+
+    def test_new_salt_is_16_bytes_and_unique(self):
+        import base64
+        self.assertEqual(len(base64.urlsafe_b64decode(logic.new_salt())), 16)
+        self.assertNotEqual(logic.new_salt(), logic.new_salt())
+
+    def test_long_value_roundtrip(self):
+        plain = "x" * 5000  # flere HMAC-blokker i nokkelstrommmen
+        enc = logic.encrypt_value(plain, self.keys)
+        self.assertEqual(logic.decrypt_value(enc, self.keys), plain)
+
+
 if __name__ == "__main__":
     unittest.main()

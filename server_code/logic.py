@@ -169,6 +169,103 @@ def bookmarklet_js(token, api_base=API_BASE):
     return _BOOKMARKLET % (api_base, token)
 
 
+ENC_PREFIX = "e1:"
+
+
+def new_salt():
+    """16 tilfeldige bytes som urlsafe-base64 - salt per bruker."""
+    try:
+        import secrets
+        raw = secrets.token_bytes(16)
+    except Exception:
+        import uuid
+        raw = uuid.uuid4().bytes
+    import base64
+    return base64.urlsafe_b64encode(raw).decode("ascii")
+
+
+def token_hash(token):
+    """SHA-256 hex for oppslag. Usaltet er OK: tokenet er hoyentropisk."""
+    import hashlib
+    return hashlib.sha256((token or "").encode("utf-8")).hexdigest()
+
+
+def derive_keys(token, salt_b64):
+    """(k_enc, k_mac) fra token + salt. Rask HMAC-avledning er nok fordi
+    tokenet kommer fra secrets.token_urlsafe(18), ikke et menneskevalgt
+    passord."""
+    import base64
+    import hashlib
+    import hmac
+    salt = base64.urlsafe_b64decode((salt_b64 or "").encode("ascii"))
+    master = hmac.new(salt, (token or "").encode("utf-8"), hashlib.sha256).digest()
+    k_enc = hmac.new(master, b"send2me-enc-v1", hashlib.sha256).digest()
+    k_mac = hmac.new(master, b"send2me-mac-v1", hashlib.sha256).digest()
+    return k_enc, k_mac
+
+
+def _keystream(k_enc, nonce, n):
+    import hashlib
+    import hmac
+    import struct
+    out = b""
+    counter = 0
+    while len(out) < n:
+        out += hmac.new(k_enc, nonce + struct.pack(">I", counter),
+                        hashlib.sha256).digest()
+        counter += 1
+    return out[:n]
+
+
+def encrypt_value(plain, keys):
+    """Str -> 'e1:'-prefikset chiffertekst. Tomme verdier krypteres ogsa,
+    sa admin ikke kan se hvilke lenker som har notat/tags."""
+    import base64
+    import hashlib
+    import hmac
+    k_enc, k_mac = keys
+    try:
+        import secrets
+        nonce = secrets.token_bytes(16)
+    except Exception:
+        import uuid
+        nonce = uuid.uuid4().bytes
+    pt = (plain or "").encode("utf-8")
+    ct = bytes(a ^ b for a, b in zip(pt, _keystream(k_enc, nonce, len(pt))))
+    tag = hmac.new(k_mac, nonce + ct, hashlib.sha256).digest()[:16]
+    return ENC_PREFIX + base64.urlsafe_b64encode(nonce + ct + tag).decode("ascii")
+
+
+def is_encrypted(value):
+    return isinstance(value, str) and value.startswith(ENC_PREFIX)
+
+
+def decrypt_value(stored, keys):
+    """Klartekst, eller None ved feil nokkel, tukling eller ugyldig format.
+    Taggen verifiseres FOR dekryptering (encrypt-then-MAC)."""
+    import base64
+    import hashlib
+    import hmac
+    if not is_encrypted(stored):
+        return None
+    k_enc, k_mac = keys
+    try:
+        raw = base64.urlsafe_b64decode(stored[len(ENC_PREFIX):].encode("ascii"))
+    except Exception:
+        return None
+    if len(raw) < 32:
+        return None
+    nonce, ct, tag = raw[:16], raw[16:-16], raw[-16:]
+    want = hmac.new(k_mac, nonce + ct, hashlib.sha256).digest()[:16]
+    if not hmac.compare_digest(tag, want):
+        return None
+    pt = bytes(a ^ b for a, b in zip(ct, _keystream(k_enc, nonce, len(ct))))
+    try:
+        return pt.decode("utf-8")
+    except UnicodeDecodeError:
+        return None
+
+
 def registration_email_text(token, js, links_url):
     return (
         "Hi!\n\n"

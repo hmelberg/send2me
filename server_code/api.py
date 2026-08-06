@@ -343,3 +343,15 @@ def links_endpoint(**kwargs):
     keys = _sub_keys(row, params.get("token"))
     result = _query_links(row, keys, params)
     return _json(result, 200 if result["ok"] else 400)
+
+
+@anvil.server.http_endpoint("/enc_selftest")
+def enc_selftest(**kwargs):
+    """MIDLERTIDIG: bekrefter at hashlib/hmac virker i python3-sandbox.
+    Fjernes etter verifisering."""
+    salt = logic.new_salt()
+    keys = logic.derive_keys("selftest-token", salt)
+    enc = logic.encrypt_value("hello æøå", keys)
+    ok = (logic.decrypt_value(enc, keys) == "hello æøå"
+          and logic.decrypt_value(enc, logic.derive_keys("x", salt)) is None)
+    return _json({"ok": ok}, 200)

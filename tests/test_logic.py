@@ -63,6 +63,11 @@ class TestBookmarklet(unittest.TestCase):
         # kaster document.write - navigasjonen skal skje uansett
         self.assertIn("try{", js)
 
+    def test_popup_opens_top_right(self):
+        js = logic.bookmarklet_js("TOKEN123")
+        self.assertIn("top=60", js)
+        self.assertNotIn("screen.height", js)
+
 
 class TestTexts(unittest.TestCase):
     def test_email_text(self):
@@ -124,8 +129,8 @@ class TestLinkCap(unittest.TestCase):
 
     def test_sent_page_closes_fast(self):
         # nedtellingen starter forst etter at serveren har svart, sa et lavt
-        # tall kan ikke miste lenker - 300 ms er nok til a se haken
-        self.assertIn("}},300)", logic.sent_page_html())
+        # tall kan ikke miste lenker - blinket ER kvitteringen
+        self.assertIn("}},100)", logic.sent_page_html())
 
     def test_error_page(self):
         self.assertIn("Unknown", logic.error_page_html("Unknown key"))

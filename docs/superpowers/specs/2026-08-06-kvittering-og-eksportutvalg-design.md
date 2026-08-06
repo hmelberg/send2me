@@ -101,3 +101,15 @@ Nye enhetstester for de rene funksjonene (begge testfiler), inkludert
 akkumulering på tvers av filtre og at «fjern» bare tar treffene. UI-lim
 (forms, yaml, css) testes ikke lokalt — som ellers i repoet — og må
 etterses i kjørende app etter deploy.
+
+## Justeringer 2026-08-06, etter bruk
+
+- Kvitteringsblinket ned fra 300 til 100 ms — blinket er selve signalet.
+- Popupen flyttet øverst til høyre (`top=60` i bookmarkleten; når bare
+  nye/re-dragde bookmarklets, som posisjonsvalg alltid gjør).
+- Toast på selve siden vurdert og valgt bort: med «Sending...» skrevet inn
+  i klikkøyeblikket er popupen selv det umiddelbare «avfyrt»-signalet, og
+  toast + vindu er samlet mer støy enn et velplassert vindu alene. Feil
+  synes fortsatt ved at feilsider aldri lukker seg selv.
+- Checkbox-kolonna fikk luft: 26 px kolonne (også mobil) med 6 px innrykk,
+  så boksen ikke ligger helt inntil kortkanten.

@@ -10,9 +10,10 @@ Live på **https://send2me.app/**
    innboksen — og nøkkelen kan bare sende lenker til sin egen eier.)
 2. Lim inn nøkkelen på siden og dra den genererte «send2me»-lenken til bokmerkelinjen.
 3. Stå på en hvilken som helst side og klikk på bokmerket: den fullstendige URL-en
-   sendes til deg. Et lite vindu viser «Sending...» mens serveren jobber, og
-   lukker seg selv straks «✓ Sendt» har blinket (300 ms — nedtellingen starter
-   først etter at serveren har svart, så lenken er alltid trygt framme).
+   sendes til deg. Et lite vindu øverst til høyre viser «Sending...» mens
+   serveren jobber, og lukker seg selv straks «✓ Sendt» har blinket (100 ms —
+   nedtellingen starter først etter at serveren har svart, så lenken er
+   alltid trygt framme).
 
 Bookmarkleten åpner et vindu mot `GET /_/api/sendlink` i stedet for å bruke
 `fetch` — dermed stopper ikke nettsiders CSP den, og URL-en sendes eksplisitt

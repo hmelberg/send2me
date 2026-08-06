@@ -15,7 +15,7 @@ _BOOKMARKLET = (
     "&url='+encodeURIComponent(location.href)+"
     "'&title='+encodeURIComponent(document.title);"
     "var w=window.open('','send2me','width=220,height=90,"
-    "left='+(screen.width-250)+',top='+(screen.height-200));"
+    "top=60,left='+(screen.width-250));"
     "if(w){try{w.document.write('Sending...');}catch(e){}"
     "w.location=u;}else{location.href=u;}})()"
 )
@@ -207,7 +207,7 @@ def sent_page_html(label="Sent"):
         "padding-top:1.6em;background:#fafafa'>"
         "<div style='font-size:1.5em'>&#10003; " + label + "</div>"
         "<script>setTimeout(function(){window.close();"
-        "if(history.length>1){history.back();}},300);</script>"
+        "if(history.length>1){history.back();}},100);</script>"
         "</body></html>"
     )
 

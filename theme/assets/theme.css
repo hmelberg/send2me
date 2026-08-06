@@ -1034,11 +1034,12 @@ a.anvil-role-toolbar-selected:hover {
 a.anvil-role-toolbar-selected > .link-text { padding: 0; }
 
 /* The seven-column grid shared by the header row and every link row.
-   The first column is the selection checkbox for export. */
+   The first column is the selection checkbox for export; the 6px indent on
+   its label keeps the box off the card edge. */
 .flow-panel.anvil-role-link-head > .flow-panel-gutter,
 .flow-panel.anvil-role-link-row > .flow-panel-gutter {
   display: grid;
-  grid-template-columns: 18px 62px 78px minmax(0, 2.2fr) 150px minmax(0, 1.8fr) 22px;
+  grid-template-columns: 26px 62px 78px minmax(0, 2.2fr) 150px minmax(0, 1.8fr) 22px;
   align-items: center;
   column-gap: 14px;
   margin: 0;
@@ -1180,7 +1181,7 @@ div.anvil-role-row-check.checkbox {
   min-height: 0;
 }
 .anvil-role-row-check label {
-  padding: 0;
+  padding: 0 0 0 6px;
   min-height: 16px;
 }
 .anvil-role-row-check input {
@@ -1220,7 +1221,7 @@ a.anvil-role-row-delete > .link-text { padding: 5px 0; }
 @media (max-width: 760px) {
   .anvil-role-link-head { display: none; }
   .flow-panel.anvil-role-link-row > .flow-panel-gutter {
-    grid-template-columns: 20px 58px minmax(0, 1fr) 26px 22px;
+    grid-template-columns: 26px 58px minmax(0, 1fr) 26px 22px;
     column-gap: 8px;
     row-gap: 1px;
   }

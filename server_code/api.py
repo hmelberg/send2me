@@ -95,7 +95,9 @@ def register_email(email):
                        enc_salt=logic.new_salt(), current_tag=None,
                        reg_date=today, reg_count=count)
         else:
-            row.update(token=token, reg_date=today, reg_count=count)
+            # Rydder ogsa evt. stale salt/hash fra en avbrutt aktivering.
+            row.update(token=token, token_hash=None, enc_salt=None,
+                       reg_date=today, reg_count=count)
     else:
         app_tables.subscribers.add_row(
             email=email_n, token=token,
@@ -178,20 +180,27 @@ def get_settings(token):
 
 
 def _enable_encryption(row, token):
-    """Krypterer alle brukerens rader, bytter lagret token med hash.
+    """Krypterer alle brukerens rader og bytter lagret token med hash.
+    Salt og hash lagres FOR migreringen og gjenbrukes ved retry, sa et
+    avbrudd aldri kan miste nokkelen; allerede krypterte rader hoppes
+    over, og enc flippes forst nar alt er ferdig.
     Returnerer (keys, antall_migrerte)."""
-    salt = logic.new_salt()
+    salt = row["enc_salt"] or logic.new_salt()
     keys = logic.derive_keys(token, salt)
+    row.update(enc_salt=salt, token_hash=logic.token_hash(token))
     n = 0
     for link in app_tables.links.search(email=row["email"]):
+        if logic.is_encrypted(link["url"] or ""):
+            continue
         link.update(url=_enc(link["url"] or "", keys),
                     title=_enc(link["title"] or "", keys),
                     tags=_enc(link["tags"] or "", keys),
                     note=_enc(link["note"] or "", keys))
         n += 1
-    row.update(enc=True, enc_salt=salt,
-               token_hash=logic.token_hash(token), token=None,
-               current_tag=_enc(row["current_tag"] or "", keys))
+    cur = row["current_tag"] or ""
+    if not logic.is_encrypted(cur):
+        cur = _enc(cur, keys)
+    row.update(enc=True, token=None, current_tag=cur)
     return keys, n
 
 
@@ -347,28 +356,3 @@ def links_endpoint(**kwargs):
     keys = _sub_keys(row, params.get("token"))
     result = _query_links(row, keys, params)
     return _json(result, 200 if result["ok"] else 400)
-
-
-@anvil.server.http_endpoint("/enc_selftest")
-def enc_selftest(**kwargs):
-    """MIDLERTIDIG: krypto-status + ytelsesmaling i server-runtimen.
-    Fjernes etter verifisering."""
-    import sys
-    import time
-    out = {"python": sys.version, "available": logic.crypto_available()}
-    if not out["available"]:
-        out["ok"] = False
-        return _json(out, 200)
-    salt = logic.new_salt()
-    keys = logic.derive_keys("selftest-token", salt)
-    enc = logic.encrypt_value("hello æøå", keys)
-    out["ok"] = (logic.decrypt_value(enc, keys) == "hello æøå"
-                 and logic.decrypt_value(enc, logic.derive_keys("x", salt)) is None)
-    sample = "https://example.com/some/long/path?query=param&id=" + "x" * 70
-    t0 = time.time()
-    n = 20
-    for _ in range(n):
-        e = logic.encrypt_value(sample, keys)
-        logic.decrypt_value(e, keys)
-    out["ms_per_field_roundtrip"] = round((time.time() - t0) * 1000.0 / n, 1)
-    return _json(out, 200)

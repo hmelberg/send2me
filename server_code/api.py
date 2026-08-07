@@ -351,16 +351,24 @@ def links_endpoint(**kwargs):
 
 @anvil.server.http_endpoint("/enc_selftest")
 def enc_selftest(**kwargs):
-    """MIDLERTIDIG: rapporterer om krypto virker i server-runtimen.
+    """MIDLERTIDIG: krypto-status + ytelsesmaling i server-runtimen.
     Fjernes etter verifisering."""
     import sys
+    import time
     out = {"python": sys.version, "available": logic.crypto_available()}
-    if out["available"]:
-        salt = logic.new_salt()
-        keys = logic.derive_keys("selftest-token", salt)
-        enc = logic.encrypt_value("hello æøå", keys)
-        out["ok"] = (logic.decrypt_value(enc, keys) == "hello æøå"
-                     and logic.decrypt_value(enc, logic.derive_keys("x", salt)) is None)
-    else:
+    if not out["available"]:
         out["ok"] = False
+        return _json(out, 200)
+    salt = logic.new_salt()
+    keys = logic.derive_keys("selftest-token", salt)
+    enc = logic.encrypt_value("hello æøå", keys)
+    out["ok"] = (logic.decrypt_value(enc, keys) == "hello æøå"
+                 and logic.decrypt_value(enc, logic.derive_keys("x", salt)) is None)
+    sample = "https://example.com/some/long/path?query=param&id=" + "x" * 70
+    t0 = time.time()
+    n = 20
+    for _ in range(n):
+        e = logic.encrypt_value(sample, keys)
+        logic.decrypt_value(e, keys)
+    out["ms_per_field_roundtrip"] = round((time.time() - t0) * 1000.0 / n, 1)
     return _json(out, 200)

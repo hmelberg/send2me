@@ -208,6 +208,7 @@ _MASK32 = 0xFFFFFFFF
 def _sha256_pure(data):
     """Ren-Python SHA-256 (FIPS 180-4). Ingen imports; kun bytes/int.
     Brukt nar hashlib ikke er tilgjengelig (PyPy-sandboxen)."""
+    mask = _MASK32
     h0, h1, h2, h3, h4, h5, h6, h7 = (
         0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
         0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
@@ -228,46 +229,46 @@ def _sha256_pure(data):
             w[i] = int.from_bytes(chunk[i * 4:i * 4 + 4], "big")
         for i in range(16, 64):
             x15 = w[i - 15]
-            s0 = ((x15 >> 7) | (x15 << 25) & _MASK32) ^ \
-                 ((x15 >> 18) | (x15 << 14) & _MASK32) ^ \
+            s0 = ((x15 >> 7) | (x15 << 25) & mask) ^ \
+                 ((x15 >> 18) | (x15 << 14) & mask) ^ \
                  (x15 >> 3)
             x2 = w[i - 2]
-            s1 = ((x2 >> 17) | (x2 << 15) & _MASK32) ^ \
-                 ((x2 >> 19) | (x2 << 13) & _MASK32) ^ \
+            s1 = ((x2 >> 17) | (x2 << 15) & mask) ^ \
+                 ((x2 >> 19) | (x2 << 13) & mask) ^ \
                  (x2 >> 10)
-            w[i] = (w[i - 16] + s0 + w[i - 7] + s1) & _MASK32
+            w[i] = (w[i - 16] + s0 + w[i - 7] + s1) & mask
 
         a, b, c, d, e, f, g, h = h0, h1, h2, h3, h4, h5, h6, h7
 
         for i in range(64):
-            s1 = ((e >> 6) | (e << 26) & _MASK32) ^ \
-                 ((e >> 11) | (e << 21) & _MASK32) ^ \
-                 ((e >> 25) | (e << 7) & _MASK32)
-            ch = (e & f) ^ (~e & g) & _MASK32
-            temp1 = (h + s1 + ch + k[i] + w[i]) & _MASK32
-            s0 = ((a >> 2) | (a << 30) & _MASK32) ^ \
-                 ((a >> 13) | (a << 19) & _MASK32) ^ \
-                 ((a >> 22) | (a << 10) & _MASK32)
+            s1 = ((e >> 6) | (e << 26) & mask) ^ \
+                 ((e >> 11) | (e << 21) & mask) ^ \
+                 ((e >> 25) | (e << 7) & mask)
+            ch = (e & f) ^ (~e & g) & mask
+            temp1 = (h + s1 + ch + k[i] + w[i]) & mask
+            s0 = ((a >> 2) | (a << 30) & mask) ^ \
+                 ((a >> 13) | (a << 19) & mask) ^ \
+                 ((a >> 22) | (a << 10) & mask)
             maj = (a & b) ^ (a & c) ^ (b & c)
-            temp2 = (s0 + maj) & _MASK32
+            temp2 = (s0 + maj) & mask
 
             h = g
             g = f
             f = e
-            e = (d + temp1) & _MASK32
+            e = (d + temp1) & mask
             d = c
             c = b
             b = a
-            a = (temp1 + temp2) & _MASK32
+            a = (temp1 + temp2) & mask
 
-        h0 = (h0 + a) & _MASK32
-        h1 = (h1 + b) & _MASK32
-        h2 = (h2 + c) & _MASK32
-        h3 = (h3 + d) & _MASK32
-        h4 = (h4 + e) & _MASK32
-        h5 = (h5 + f) & _MASK32
-        h6 = (h6 + g) & _MASK32
-        h7 = (h7 + h) & _MASK32
+        h0 = (h0 + a) & mask
+        h1 = (h1 + b) & mask
+        h2 = (h2 + c) & mask
+        h3 = (h3 + d) & mask
+        h4 = (h4 + e) & mask
+        h5 = (h5 + f) & mask
+        h6 = (h6 + g) & mask
+        h7 = (h7 + h) & mask
 
     out = bytearray()
     for part in (h0, h1, h2, h3, h4, h5, h6, h7):

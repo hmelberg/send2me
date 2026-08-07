@@ -11,15 +11,33 @@ import logic
 
 
 def _subscriber(token):
-    """Finner raden pa klartekst-token eller (for krypterte brukere) pa
-    SHA-256-hashen - selve tokenet lagres ikke nar kryptering er pa."""
+    """Finner raden pa klartekst-token, pa SHA-256-hashen (krypterte brukere
+    lagrer ikke selve tokenet), eller - forste gang en ny nokkel fra en
+    re-registrering brukes - pa den ventende hashen."""
     token = (token or "").strip()
     if not token:
         return None
     row = app_tables.subscribers.get(token=token)
-    if row is None:
-        h = logic.token_hash(token)
-        row = app_tables.subscribers.get(token_hash=h) if h else None
+    if row is not None:
+        return row
+    h = logic.token_hash(token)
+    row = app_tables.subscribers.get(token_hash=h)
+    if row is not None:
+        return row
+    row = app_tables.subscribers.get(pending_hash=h)
+    if row is not None and row["enc"]:
+        return _activate_pending(row, h)
+    return None
+
+
+def _activate_pending(row, h):
+    """Den nye nokkelen fra en re-registrering brukes for forste gang. De
+    gamle radene er ugjenkallelig uleselige med den, sa de slettes na - og
+    forst na, nar noen har bevist at de leser brukerens e-post."""
+    for link in app_tables.links.search(email=row["email"]):
+        link.delete()
+    row.update(token=None, token_hash=h, pending_hash=None,
+               enc_salt=logic.new_salt(), current_tag=None)
     return row
 
 
@@ -87,17 +105,17 @@ def register_email(email):
     token = logic.new_token()
     if row:
         if row["enc"]:
-            # Nytt token = ny nokkel: gamle krypterte rader er ugjenkallelig
-            # uleselige, sa de slettes (jf. spec). Kryptering forblir pa.
-            for link in app_tables.links.search(email=email_n):
-                link.delete()
-            row.update(token=None, token_hash=logic.token_hash(token),
-                       enc_salt=logic.new_salt(), current_tag=None,
+            # register_email er apen (bare e-posten kreves), sa selve
+            # ODELEGGELSEN ma vente til noen faktisk beviser at de har lest
+            # postkassa - dvs. bruker den nye nokkelen. Til da rores verken
+            # lenker eller den gjeldende nokkelen. Aktiveringen skjer i
+            # _activate_pending, kalt fra _subscriber.
+            row.update(pending_hash=logic.token_hash(token),
                        reg_date=today, reg_count=count)
         else:
             # Rydder ogsa evt. stale salt/hash fra en avbrutt aktivering.
             row.update(token=token, token_hash=None, enc_salt=None,
-                       reg_date=today, reg_count=count)
+                       pending_hash=None, reg_date=today, reg_count=count)
     else:
         app_tables.subscribers.add_row(
             email=email_n, token=token,
@@ -190,12 +208,14 @@ def _enable_encryption(row, token):
     row.update(enc_salt=salt, token_hash=logic.token_hash(token))
     n = 0
     for link in app_tables.links.search(email=row["email"]):
-        if logic.is_encrypted(link["url"] or ""):
+        vals = {}
+        for f in ("url", "title", "tags", "note"):
+            v = link[f] or ""
+            if not logic.is_encrypted(v):
+                vals[f] = _enc(v, keys)
+        if not vals:
             continue
-        link.update(url=_enc(link["url"] or "", keys),
-                    title=_enc(link["title"] or "", keys),
-                    tags=_enc(link["tags"] or "", keys),
-                    note=_enc(link["note"] or "", keys))
+        link.update(**vals)
         n += 1
     cur = row["current_tag"] or ""
     if not logic.is_encrypted(cur):
@@ -205,17 +225,33 @@ def _enable_encryption(row, token):
 
 
 def _disable_encryption(row, token, keys):
-    """Dekrypterer alt tilbake til klartekst. Returnerer (None, antall)."""
-    n = 0
+    """Dekrypterer alt tilbake til klartekst. Verifiserer forst at HVER verdi
+    lar seg dekryptere; feiler en eneste, avbrytes alt med data urort - vi
+    skal aldri skrive en visningsmarkor over chiffertekst.
+    Returnerer (None, antall), eller (None, None) hvis avbrutt."""
+    plain = []
     for link in app_tables.links.search(email=row["email"]):
-        link.update(url=_dec(link["url"], keys) or "",
-                    title=_dec(link["title"], keys) or "",
-                    tags=_dec(link["tags"], keys) or "",
-                    note=_dec(link["note"], keys) or "")
-        n += 1
-    row.update(enc=False, enc_salt=None, token_hash=None, token=token,
-               current_tag=_dec(row["current_tag"], keys) or "")
-    return None, n
+        vals = {}
+        for f in ("url", "title", "tags", "note"):
+            v = link[f] or ""
+            if logic.is_encrypted(v):
+                p = logic.decrypt_value(v, keys)
+                if p is None:
+                    return None, None
+                vals[f] = p
+            else:
+                vals[f] = v
+        plain.append((link, vals))
+    cur = row["current_tag"] or ""
+    if logic.is_encrypted(cur):
+        cur = logic.decrypt_value(cur, keys)
+        if cur is None:
+            return None, None
+    for link, vals in plain:
+        link.update(**vals)
+    row.update(enc=False, enc_salt=None, token_hash=None, pending_hash=None,
+               token=token, current_tag=cur or "")
+    return None, len(plain)
 
 
 @anvil.server.callable
@@ -229,6 +265,20 @@ def save_settings(token, mode=None, current_tag=None, encrypt=None):
         return {"ok": False, "error": "Unknown key."}
     keys = _sub_keys(row, token)
     migrated = None
+    if encrypt is False and not row["enc"] and row["enc_salt"]:
+        # Avbrutt aktivering: enc ble aldri flippet, men rader kan alt vaere
+        # krypterte. Rull dem tilbake i stedet for a svare "av" pa noe som
+        # aldri ble pa. (encrypt=True treffer _enable_encryption, som alt
+        # gjenopptar riktig: samme salt, allerede krypterte rader hoppes over.)
+        if not logic.crypto_available():
+            return {"ok": False,
+                    "error": "Encryption is not available on this server right now."}
+        keys, migrated = _disable_encryption(
+            row, token, logic.derive_keys(token, row["enc_salt"]))
+        if migrated is None:
+            return {"ok": False,
+                    "error": "Some links could not be decrypted, so "
+                             "nothing was changed."}
     if encrypt is not None and bool(encrypt) != bool(row["enc"]):
         if not logic.crypto_available():
             return {"ok": False,
@@ -237,6 +287,10 @@ def save_settings(token, mode=None, current_tag=None, encrypt=None):
             keys, migrated = _enable_encryption(row, token)
         else:
             keys, migrated = _disable_encryption(row, token, keys)
+            if migrated is None:
+                return {"ok": False,
+                        "error": "Some links could not be decrypted, so "
+                                 "nothing was changed."}
     if mode is not None:
         row["mode"] = logic.normalize_mode(mode)
     if current_tag is not None:
@@ -313,6 +367,9 @@ def export_csv(token, ids=None):
     keys = _sub_keys(row, token)
     rows = app_tables.links.search(tables.order_by("saved", ascending=False),
                                    email=row["email"])
+    if ids:
+        wanted = set(ids)
+        rows = [r for r in rows if r.get_id() in wanted]
     links = logic.links_by_ids([_link_dict(r, keys) for r in rows], ids)
     csv_text = logic.links_to_csv(links)
     return anvil.BlobMedia("text/csv", csv_text.encode("utf-8"),
@@ -326,9 +383,15 @@ def _query_links(row, keys, params):
     result = []
     for link in app_tables.links.search(tables.order_by("saved", ascending=False),
                                         email=row["email"]):
-        d = _link_dict(link, keys)
-        if logic.link_matches(d, filters):
-            result.append((link, d))
+        # Dato, stjerner og fetched_at er klartekst, sa treff avgjores uten
+        # kryptoarbeid; bare radene som overlever dekrypteres. tags ma dog
+        # dekrypteres nar det faktisk filtreres pa tag.
+        pre = {"saved": link["saved"], "fetched_at": link["fetched_at"],
+               "stars": logic.link_stars(link["stars"], link["starred"]),
+               "tags": _dec(link["tags"], keys) if filters["tag"] else ""}
+        if not logic.link_matches(pre, filters):
+            continue
+        result.append((link, _link_dict(link, keys)))
     if not filters["keep"]:
         now = datetime.datetime.now()
         for link, d in result:

@@ -60,7 +60,16 @@ class SettingsForm(SettingsFormTemplate):
         if not ok:
             self.check_encrypt.checked = not turn_on
             return
-        result = anvil.server.call('save_settings', self.key, encrypt=turn_on)
+        try:
+            result = anvil.server.call('save_settings', self.key,
+                                       encrypt=turn_on)
+        except Exception:
+            # Timeout eller serverfeil: vi vet ikke hvor langt den kom, sa vi
+            # henter fasit i stedet for a gjette pa checkbox-tilstanden.
+            self._sync_encrypt_state()
+            self._status("Something went wrong. Check the box above - "
+                         "try again if it is not what you wanted.")
+            return
         if result["ok"]:
             if turn_on:
                 self._status("Encrypted %d links." % (result.get("migrated") or 0))
@@ -69,6 +78,14 @@ class SettingsForm(SettingsFormTemplate):
         else:
             self.check_encrypt.checked = not turn_on
             self._status(result["error"])
+
+    def _sync_encrypt_state(self):
+        try:
+            settings = anvil.server.call('get_settings', self.key)
+            if settings["ok"]:
+                self.check_encrypt.checked = bool(settings.get("encrypted"))
+        except Exception:
+            pass
 
     def link_delete_all_click(self, **event_args):
         if not confirm("Delete ALL your saved links?\n\n"

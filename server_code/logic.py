@@ -461,8 +461,9 @@ def _keystream(k_enc, nonce, n):
 
 
 def encrypt_value(plain, keys):
-    """Str -> 'e1:'-prefikset chiffertekst. Tomme verdier krypteres ogsa,
-    sa admin ikke kan se hvilke lenker som har notat/tags."""
+    """Str -> 'e1:'-prefikset chiffertekst. Tomme verdier krypteres ogsa, men
+    lengden er bevart, sa admin kan fortsatt SE at et felt er tomt eller kort
+    (dokumentert som kjent lekkasje i spec-en)."""
     k_enc, k_mac = keys
     try:
         import secrets

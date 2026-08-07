@@ -66,6 +66,9 @@ db_schema:
     - admin_ui: {width: 200}
       name: token_hash
       type: string
+    - admin_ui: {width: 200}
+      name: pending_hash
+      type: string
     indexes: []
     server: full
     title: Subscribers

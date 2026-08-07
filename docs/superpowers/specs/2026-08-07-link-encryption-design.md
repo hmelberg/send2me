@@ -27,6 +27,9 @@ Beskytter ikke mot (bevisste avgrensninger, ikke mangler):
   forblir synlige.
 - Innhold i selve e-postene (e-postmodus sender URL-en i klartekst per
   e-postens natur).
+- Lengder: chifferteksten er like lang som klarteksten, så admin ser hvor
+  lang en URL/tittel er og om et notat- eller tag-felt er tomt (innholdet
+  forblir skjult).
 
 ## Nøkkelidé
 
@@ -134,6 +137,16 @@ Nytt avsnitt (før «Small print»), på engelsk som resten av e-posten:
 > can read them? Turn on encryption under Settings on your links page.
 > Note: your key then becomes the only way to read them — if you register
 > again and get a new key, previously saved links are deleted.
+
+## Re-registrering: ventende nøkkel
+
+`register_email` krever bare en e-postadresse, så den kan ikke få lov til å
+slette et kryptert arkiv direkte. Ved re-registrering av en kryptert bruker
+lagres bare hashen av det nye tokenet i `pending_hash`; verken lenker eller
+gjeldende nøkkel røres. Først når noen faktisk bruker den nye nøkkelen —
+altså har lest postkassa — slettes de gamle (uleselige) radene, og den nye
+nøkkelen tas i bruk. En ubrukt ventende rotasjon ryddes bort ved neste
+ikke-krypterte registrering eller ved av-slåing av kryptering.
 
 ## Testing
 

@@ -369,5 +369,68 @@ class TestCrypto(unittest.TestCase):
         self.assertTrue(logic.crypto_available())
 
 
+class TestPureCrypto(unittest.TestCase):
+    def tearDown(self):
+        logic._FORCE_PURE = False
+
+    def test_sha256_pure_matches_hashlib(self):
+        import hashlib
+        cases = [b"", b"abc", "blåbær æøå".encode("utf-8"), b"x" * 55,
+                 b"x" * 56, b"x" * 63, b"x" * 64, b"x" * 65, b"x" * 1000,
+                 bytes(range(256))]
+        for m in cases:
+            self.assertEqual(logic._sha256_pure(m),
+                             hashlib.sha256(m).digest(), repr(m[:8]))
+
+    def test_hmac_pure_matches_hmac(self):
+        import hashlib
+        import hmac
+        for k in [b"", b"k", b"K" * 64, b"K" * 65, b"K" * 200]:
+            for m in [b"", b"m", b"melding" * 30]:
+                self.assertEqual(logic._hmac_sha256_pure(k, m),
+                                 hmac.new(k, m, hashlib.sha256).digest())
+
+    def test_rfc4231_vector(self):
+        expected = bytes.fromhex("5bdcc146bf60754e6a042426089575c7"
+                                 "5a003f089d2739839dec58b964ec3843")
+        self.assertEqual(
+            logic._hmac_sha256_pure(b"Jefe", b"what do ya want for nothing?"),
+            expected)
+
+    def test_b64_pure_matches_base64(self):
+        import base64
+        for raw in [b"", b"a", b"ab", b"abc", b"abcd", bytes(range(256))]:
+            enc = logic._b64encode_pure(raw)
+            self.assertEqual(enc, base64.urlsafe_b64encode(raw).decode("ascii"))
+            self.assertEqual(logic._b64decode_pure(enc), raw)
+
+    def test_full_stack_forced_pure(self):
+        logic._FORCE_PURE = True
+        salt = logic.new_salt()
+        keys = logic.derive_keys("tok", salt)
+        enc = logic.encrypt_value("hemmelig blåbær-lenke", keys)
+        self.assertEqual(logic.decrypt_value(enc, keys), "hemmelig blåbær-lenke")
+        self.assertIsNone(logic.decrypt_value(enc, logic.derive_keys("x", salt)))
+        self.assertTrue(logic.crypto_available())
+
+    def test_pure_and_native_interoperate(self):
+        salt = logic.new_salt()
+        keys = logic.derive_keys("tok", salt)
+        enc_native = logic.encrypt_value("data æøå", keys)
+        logic._FORCE_PURE = True
+        self.assertEqual(logic.decrypt_value(enc_native, keys), "data æøå")
+        enc_pure = logic.encrypt_value("data æøå", keys)
+        self.assertEqual(logic.derive_keys("tok", salt), keys)
+        logic._FORCE_PURE = False
+        self.assertEqual(logic.decrypt_value(enc_pure, keys), "data æøå")
+
+    def test_token_hash_same_in_both_paths(self):
+        import hashlib
+        expected = hashlib.sha256(b"abc").hexdigest()
+        self.assertEqual(logic.token_hash("abc"), expected)
+        logic._FORCE_PURE = True
+        self.assertEqual(logic.token_hash("abc"), expected)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -180,27 +180,261 @@ def new_salt():
     except Exception:
         import uuid
         raw = uuid.uuid4().bytes
-    import base64
-    return base64.urlsafe_b64encode(raw).decode("ascii")
+    return _b64encode(raw)
+
+
+_SHA256_K = (
+    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
+    0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+    0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+    0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
+    0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+    0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+    0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+    0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
+    0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
+    0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+    0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+)
+
+_MASK32 = 0xFFFFFFFF
+
+
+def _sha256_pure(data):
+    """Ren-Python SHA-256 (FIPS 180-4). Ingen imports; kun bytes/int.
+    Brukt nar hashlib ikke er tilgjengelig (PyPy-sandboxen)."""
+    h0, h1, h2, h3, h4, h5, h6, h7 = (
+        0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+        0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
+    )
+    k = _SHA256_K
+
+    msg = bytearray(data)
+    bit_len = len(msg) * 8
+    msg.append(0x80)
+    while len(msg) % 64 != 56:
+        msg.append(0)
+    msg += bit_len.to_bytes(8, "big")
+
+    for chunk_start in range(0, len(msg), 64):
+        chunk = msg[chunk_start:chunk_start + 64]
+        w = [0] * 64
+        for i in range(16):
+            w[i] = int.from_bytes(chunk[i * 4:i * 4 + 4], "big")
+        for i in range(16, 64):
+            x15 = w[i - 15]
+            s0 = ((x15 >> 7) | (x15 << 25) & _MASK32) ^ \
+                 ((x15 >> 18) | (x15 << 14) & _MASK32) ^ \
+                 (x15 >> 3)
+            x2 = w[i - 2]
+            s1 = ((x2 >> 17) | (x2 << 15) & _MASK32) ^ \
+                 ((x2 >> 19) | (x2 << 13) & _MASK32) ^ \
+                 (x2 >> 10)
+            w[i] = (w[i - 16] + s0 + w[i - 7] + s1) & _MASK32
+
+        a, b, c, d, e, f, g, h = h0, h1, h2, h3, h4, h5, h6, h7
+
+        for i in range(64):
+            s1 = ((e >> 6) | (e << 26) & _MASK32) ^ \
+                 ((e >> 11) | (e << 21) & _MASK32) ^ \
+                 ((e >> 25) | (e << 7) & _MASK32)
+            ch = (e & f) ^ (~e & g) & _MASK32
+            temp1 = (h + s1 + ch + k[i] + w[i]) & _MASK32
+            s0 = ((a >> 2) | (a << 30) & _MASK32) ^ \
+                 ((a >> 13) | (a << 19) & _MASK32) ^ \
+                 ((a >> 22) | (a << 10) & _MASK32)
+            maj = (a & b) ^ (a & c) ^ (b & c)
+            temp2 = (s0 + maj) & _MASK32
+
+            h = g
+            g = f
+            f = e
+            e = (d + temp1) & _MASK32
+            d = c
+            c = b
+            b = a
+            a = (temp1 + temp2) & _MASK32
+
+        h0 = (h0 + a) & _MASK32
+        h1 = (h1 + b) & _MASK32
+        h2 = (h2 + c) & _MASK32
+        h3 = (h3 + d) & _MASK32
+        h4 = (h4 + e) & _MASK32
+        h5 = (h5 + f) & _MASK32
+        h6 = (h6 + g) & _MASK32
+        h7 = (h7 + h) & _MASK32
+
+    out = bytearray()
+    for part in (h0, h1, h2, h3, h4, h5, h6, h7):
+        out += part.to_bytes(4, "big")
+    return bytes(out)
+
+
+def _hmac_sha256_pure(key, msg):
+    """Ren-Python HMAC-SHA256 (RFC 2104). Ingen imports."""
+    block_size = 64
+    if len(key) > block_size:
+        key = _sha256_pure(key)
+    key = key + b"\x00" * (block_size - len(key))
+    ipad = bytes(b ^ 0x36 for b in key)
+    opad = bytes(b ^ 0x5C for b in key)
+    inner = _sha256_pure(ipad + msg)
+    return _sha256_pure(opad + inner)
+
+
+_B64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+
+
+def _b64encode_pure(raw):
+    """Ren-Python urlsafe base64-encoding (RFC 4648 sec. 5). Ingen imports."""
+    out = []
+    n = len(raw)
+    i = 0
+    while i + 3 <= n:
+        b0, b1, b2 = raw[i], raw[i + 1], raw[i + 2]
+        val = (b0 << 16) | (b1 << 8) | b2
+        out.append(_B64_ALPHABET[(val >> 18) & 0x3F])
+        out.append(_B64_ALPHABET[(val >> 12) & 0x3F])
+        out.append(_B64_ALPHABET[(val >> 6) & 0x3F])
+        out.append(_B64_ALPHABET[val & 0x3F])
+        i += 3
+    rem = n - i
+    if rem == 1:
+        b0 = raw[i]
+        val = b0 << 16
+        out.append(_B64_ALPHABET[(val >> 18) & 0x3F])
+        out.append(_B64_ALPHABET[(val >> 12) & 0x3F])
+        out.append("==")
+    elif rem == 2:
+        b0, b1 = raw[i], raw[i + 1]
+        val = (b0 << 16) | (b1 << 8)
+        out.append(_B64_ALPHABET[(val >> 18) & 0x3F])
+        out.append(_B64_ALPHABET[(val >> 12) & 0x3F])
+        out.append(_B64_ALPHABET[(val >> 6) & 0x3F])
+        out.append("=")
+    return "".join(out)
+
+
+_B64_INDEX = {ch: i for i, ch in enumerate(_B64_ALPHABET)}
+
+
+def _b64decode_pure(s):
+    """Ren-Python urlsafe base64-decoding. Ingen imports."""
+    s = s.rstrip("=")
+    out = bytearray()
+    n = len(s)
+    i = 0
+    while i + 4 <= n:
+        v0 = _B64_INDEX[s[i]]
+        v1 = _B64_INDEX[s[i + 1]]
+        v2 = _B64_INDEX[s[i + 2]]
+        v3 = _B64_INDEX[s[i + 3]]
+        val = (v0 << 18) | (v1 << 12) | (v2 << 6) | v3
+        out.append((val >> 16) & 0xFF)
+        out.append((val >> 8) & 0xFF)
+        out.append(val & 0xFF)
+        i += 4
+    rem = n - i
+    if rem == 2:
+        v0 = _B64_INDEX[s[i]]
+        v1 = _B64_INDEX[s[i + 1]]
+        val = (v0 << 18) | (v1 << 12)
+        out.append((val >> 16) & 0xFF)
+    elif rem == 3:
+        v0 = _B64_INDEX[s[i]]
+        v1 = _B64_INDEX[s[i + 1]]
+        v2 = _B64_INDEX[s[i + 2]]
+        val = (v0 << 18) | (v1 << 12) | (v2 << 6)
+        out.append((val >> 16) & 0xFF)
+        out.append((val >> 8) & 0xFF)
+    return bytes(out)
+
+
+_FORCE_PURE = False  # testene setter True for a tvinge ren-Python-stien
+
+_NATIVE_OK = None
+
+
+def _native_ok():
+    """Sandboxens hashlib-shim kaster Exception ved import - prov en gang."""
+    global _NATIVE_OK
+    if _NATIVE_OK is None:
+        try:
+            import hashlib
+            import hmac
+            hashlib.sha256(b"").digest()
+            _NATIVE_OK = True
+        except Exception:
+            _NATIVE_OK = False
+    return _NATIVE_OK
+
+
+def _sha256(data):
+    if not _FORCE_PURE and _native_ok():
+        import hashlib
+        return hashlib.sha256(data).digest()
+    return _sha256_pure(data)
+
+
+def _hmac_sha256(key, msg):
+    if not _FORCE_PURE and _native_ok():
+        import hashlib
+        import hmac
+        return hmac.new(key, msg, hashlib.sha256).digest()
+    return _hmac_sha256_pure(key, msg)
+
+
+def _consteq(a, b):
+    if not _FORCE_PURE and _native_ok():
+        import hmac
+        return hmac.compare_digest(a, b)
+    if len(a) != len(b):
+        return False
+    r = 0
+    for x, y in zip(a, b):
+        r |= x ^ y
+    return r == 0
+
+
+def _b64encode(raw):
+    if not _FORCE_PURE:
+        try:
+            import base64
+            return base64.urlsafe_b64encode(raw).decode("ascii")
+        except Exception:
+            pass
+    return _b64encode_pure(raw)
+
+
+def _b64decode(s):
+    if not _FORCE_PURE:
+        try:
+            import base64
+            return base64.urlsafe_b64decode(s.encode("ascii"))
+        except Exception:
+            pass
+    return _b64decode_pure(s)
 
 
 def token_hash(token):
-    """SHA-256 hex for oppslag, eller None hvis sandboxen mangler hashlib.
-    Usaltet er OK: tokenet er hoyentropisk."""
-    try:
-        import hashlib
-        return hashlib.sha256((token or "").encode("utf-8")).hexdigest()
-    except Exception:
-        return None
+    """SHA-256 hex for oppslag. Wrapperen feiler aldri: native hashlib
+    brukes nar tilgjengelig, ellers ren-Python-fallback."""
+    return _sha256((token or "").encode("utf-8")).hex()
 
 
 def crypto_available():
-    """python3-sandbox kan mangle hashlib/hmac - da er kryptering av."""
+    """Sann hvis krypto-stakken gir riktig svar i denne runtimen (native
+    hashlib eller ren-Python-fallback)."""
     try:
-        import hashlib
-        import hmac
-        hmac.new(b"k", b"m", hashlib.sha256).digest()
-        return True
+        expected = bytes.fromhex("5bdcc146bf60754e6a042426089575c7"
+                                 "5a003f089d2739839dec58b964ec3843")
+        return _hmac_sha256(b"Jefe",
+                            b"what do ya want for nothing?") == expected
     except Exception:
         return False
 
@@ -209,25 +443,18 @@ def derive_keys(token, salt_b64):
     """(k_enc, k_mac) fra token + salt. Rask HMAC-avledning er nok fordi
     tokenet kommer fra secrets.token_urlsafe(18), ikke et menneskevalgt
     passord."""
-    import base64
-    import hashlib
-    import hmac
-    salt = base64.urlsafe_b64decode((salt_b64 or "").encode("ascii"))
-    master = hmac.new(salt, (token or "").encode("utf-8"), hashlib.sha256).digest()
-    k_enc = hmac.new(master, b"send2me-enc-v1", hashlib.sha256).digest()
-    k_mac = hmac.new(master, b"send2me-mac-v1", hashlib.sha256).digest()
+    salt = _b64decode(salt_b64 or "")
+    master = _hmac_sha256(salt, (token or "").encode("utf-8"))
+    k_enc = _hmac_sha256(master, b"send2me-enc-v1")
+    k_mac = _hmac_sha256(master, b"send2me-mac-v1")
     return k_enc, k_mac
 
 
 def _keystream(k_enc, nonce, n):
-    import hashlib
-    import hmac
-    import struct
     out = b""
     counter = 0
     while len(out) < n:
-        out += hmac.new(k_enc, nonce + struct.pack(">I", counter),
-                        hashlib.sha256).digest()
+        out += _hmac_sha256(k_enc, nonce + counter.to_bytes(4, "big"))
         counter += 1
     return out[:n]
 
@@ -235,9 +462,6 @@ def _keystream(k_enc, nonce, n):
 def encrypt_value(plain, keys):
     """Str -> 'e1:'-prefikset chiffertekst. Tomme verdier krypteres ogsa,
     sa admin ikke kan se hvilke lenker som har notat/tags."""
-    import base64
-    import hashlib
-    import hmac
     k_enc, k_mac = keys
     try:
         import secrets
@@ -247,8 +471,8 @@ def encrypt_value(plain, keys):
         nonce = uuid.uuid4().bytes
     pt = (plain or "").encode("utf-8")
     ct = bytes(a ^ b for a, b in zip(pt, _keystream(k_enc, nonce, len(pt))))
-    tag = hmac.new(k_mac, nonce + ct, hashlib.sha256).digest()[:16]
-    return ENC_PREFIX + base64.urlsafe_b64encode(nonce + ct + tag).decode("ascii")
+    tag = _hmac_sha256(k_mac, nonce + ct)[:16]
+    return ENC_PREFIX + _b64encode(nonce + ct + tag)
 
 
 def is_encrypted(value):
@@ -258,21 +482,18 @@ def is_encrypted(value):
 def decrypt_value(stored, keys):
     """Klartekst, eller None ved feil nokkel, tukling eller ugyldig format.
     Taggen verifiseres FOR dekryptering (encrypt-then-MAC)."""
-    import base64
-    import hashlib
-    import hmac
     if not is_encrypted(stored):
         return None
     k_enc, k_mac = keys
     try:
-        raw = base64.urlsafe_b64decode(stored[len(ENC_PREFIX):].encode("ascii"))
+        raw = _b64decode(stored[len(ENC_PREFIX):])
     except Exception:
         return None
     if len(raw) < 32:
         return None
     nonce, ct, tag = raw[:16], raw[16:-16], raw[-16:]
-    want = hmac.new(k_mac, nonce + ct, hashlib.sha256).digest()[:16]
-    if not hmac.compare_digest(tag, want):
+    want = _hmac_sha256(k_mac, nonce + ct)[:16]
+    if not _consteq(tag, want):
         return None
     pt = bytes(a ^ b for a, b in zip(ct, _keystream(k_enc, nonce, len(ct))))
     try:

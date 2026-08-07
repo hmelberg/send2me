@@ -365,6 +365,9 @@ class TestCrypto(unittest.TestCase):
         enc = logic.encrypt_value(plain, self.keys)
         self.assertEqual(logic.decrypt_value(enc, self.keys), plain)
 
+    def test_crypto_available_locally(self):
+        self.assertTrue(logic.crypto_available())
+
 
 if __name__ == "__main__":
     unittest.main()

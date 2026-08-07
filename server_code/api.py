@@ -18,7 +18,8 @@ def _subscriber(token):
         return None
     row = app_tables.subscribers.get(token=token)
     if row is None:
-        row = app_tables.subscribers.get(token_hash=logic.token_hash(token))
+        h = logic.token_hash(token)
+        row = app_tables.subscribers.get(token_hash=h) if h else None
     return row
 
 
@@ -220,6 +221,9 @@ def save_settings(token, mode=None, current_tag=None, encrypt=None):
     keys = _sub_keys(row, token)
     migrated = None
     if encrypt is not None and bool(encrypt) != bool(row["enc"]):
+        if not logic.crypto_available():
+            return {"ok": False,
+                    "error": "Encryption is not available on this server right now."}
         if encrypt:
             keys, migrated = _enable_encryption(row, token)
         else:
@@ -347,11 +351,16 @@ def links_endpoint(**kwargs):
 
 @anvil.server.http_endpoint("/enc_selftest")
 def enc_selftest(**kwargs):
-    """MIDLERTIDIG: bekrefter at hashlib/hmac virker i python3-sandbox.
+    """MIDLERTIDIG: rapporterer om krypto virker i server-runtimen.
     Fjernes etter verifisering."""
-    salt = logic.new_salt()
-    keys = logic.derive_keys("selftest-token", salt)
-    enc = logic.encrypt_value("hello æøå", keys)
-    ok = (logic.decrypt_value(enc, keys) == "hello æøå"
-          and logic.decrypt_value(enc, logic.derive_keys("x", salt)) is None)
-    return _json({"ok": ok}, 200)
+    import sys
+    out = {"python": sys.version, "available": logic.crypto_available()}
+    if out["available"]:
+        salt = logic.new_salt()
+        keys = logic.derive_keys("selftest-token", salt)
+        enc = logic.encrypt_value("hello æøå", keys)
+        out["ok"] = (logic.decrypt_value(enc, keys) == "hello æøå"
+                     and logic.decrypt_value(enc, logic.derive_keys("x", salt)) is None)
+    else:
+        out["ok"] = False
+    return _json(out, 200)

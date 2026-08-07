@@ -185,9 +185,24 @@ def new_salt():
 
 
 def token_hash(token):
-    """SHA-256 hex for oppslag. Usaltet er OK: tokenet er hoyentropisk."""
-    import hashlib
-    return hashlib.sha256((token or "").encode("utf-8")).hexdigest()
+    """SHA-256 hex for oppslag, eller None hvis sandboxen mangler hashlib.
+    Usaltet er OK: tokenet er hoyentropisk."""
+    try:
+        import hashlib
+        return hashlib.sha256((token or "").encode("utf-8")).hexdigest()
+    except Exception:
+        return None
+
+
+def crypto_available():
+    """python3-sandbox kan mangle hashlib/hmac - da er kryptering av."""
+    try:
+        import hashlib
+        import hmac
+        hmac.new(b"k", b"m", hashlib.sha256).digest()
+        return True
+    except Exception:
+        return False
 
 
 def derive_keys(token, salt_b64):

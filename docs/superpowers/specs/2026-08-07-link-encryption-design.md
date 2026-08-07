@@ -109,11 +109,10 @@ testbare lokalt med unittest, etter repoets etablerte mønster.
   - Migreringen skjer i ett serverkall (maks 1000 rader; HMAC er billig,
     radoppdateringene er kostnaden — antas OK innenfor sandboxens
     tidsgrense, verifiseres i implementasjonen).
-- `register_email`: hvis eksisterende rad har `enc=True` — **slett alle
-  brukerens lenker** (de er kryptografisk uleselige med nytt token; å beholde
-  søppel hjelper ingen), generer nytt token, nytt salt, `token_hash` av det
-  nye, `token=None`, behold `enc=True`. (Vi har ingen brukere ennå, så ingen
-  migrering av eksisterende data trengs.)
+- `register_email`: hvis eksisterende rad har `enc=True` — lagre bare
+  `pending_hash` og la lenker og gjeldende nøkkel være i fred; slettingen
+  skjer først når den nye nøkkelen brukes. Se «Re-registrering: ventende
+  nøkkel» under for hvorfor.
 
 ## UI (`SettingsForm`)
 
@@ -147,6 +146,20 @@ gjeldende nøkkel røres. Først når noen faktisk bruker den nye nøkkelen —
 altså har lest postkassa — slettes de gamle (uleselige) radene, og den nye
 nøkkelen tas i bruk. En ubrukt ventende rotasjon ryddes bort ved neste
 ikke-krypterte registrering eller ved av-slåing av kryptering.
+
+Kjente, aksepterte begrensninger:
+
+- Blir en aktivering avbrutt (salt lagret, `enc` ennå ikke satt), går en
+  re-registrering på det tidspunktet gjennom den ikke-krypterte grenen og
+  nullstiller saltet — de radene som rakk å bli kryptert blir da uleselige.
+  Vinduet er svært smalt (krever timeout midt i migreringen), og brukeren kan
+  slette radene selv. Å slå kryptering på igjen fullfører en avbrutt
+  aktivering; å slå den av ruller den tilbake.
+- Anvil har ingen transaksjoner, så en migrering av mange rader er ikke
+  atomisk. Den er til gjengjeld gjenopptakbar: saltet lagres først, allerede
+  krypterte felter hoppes over, og `enc` settes til slutt.
+- `migrated`-tallet i svaret teller bare raden i det kallet, så det
+  underrapporterer etter en gjenopptatt migrering.
 
 ## Testing
 
